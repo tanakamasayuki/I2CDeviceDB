@@ -1,0 +1,19 @@
+[project]
+name = "i2cdevicedb-collection"
+version = "0.1.0"
+description = "I2CDeviceDB collection harness (pytest orchestrator + sigrok capture + Arduino probes)"
+requires-python = ">=3.10"
+dependencies = [
+    "pytest>=8",
+    "pytest-embedded>=2.0",
+    "pytest-embedded-serial>=2.0",
+    "pytest-embedded-arduino-cli>=1.3",
+    "PyYAML>=6.0.2",
+]
+
+[tool.pytest.ini_options]
+addopts = "--save-state"
+pythonpath = ["."]
+markers = [
+    "probe(key): probe identity this test drives (\"scan\" or \"<chip>__<library>\").",
+]

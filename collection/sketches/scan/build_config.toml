@@ -1,0 +1,6 @@
+# Maps .env variable -> sketch #define. The arduino-cli plugin injects each as
+# -D<define>="<value from env>" at compile time, so GPIO stays out of the sketch.
+[defines]
+TEST_I2C_SDA = "I2C_SDA_PIN"
+TEST_I2C_SCL = "I2C_SCL_PIN"
+TEST_UART_TX = "MARKER_UART_TX_PIN"

@@ -1,0 +1,24 @@
+# --- local environment ---
+# (.env.example stays tracked: different filename, not matched by ".env")
+.env
+
+# --- Python / uv (collection harness) ---
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.pytest-results/
+
+# --- arduino-cli build artifacts + pytest-embedded state ---
+build/
+
+# --- sigrok capture staging (transient; captures/ is the durable store) ---
+_staging/
+
+# decode is a transient intermediate, regenerated from .sr
+*.jsontrace.json
+
+# --- editor / OS ---
+.vscode/
+.DS_Store
+Thumbs.db

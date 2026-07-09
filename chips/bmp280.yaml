@@ -1,0 +1,29 @@
+key: bmp280
+name: BMP280
+manufacturer: Bosch Sensortec
+tags: [pressure, temperature]
+addresses:
+  - addr: "0x76"
+    note: SDO=GND
+  - addr: "0x77"
+    note: SDO=VDD
+datasheets:
+  - source: manufacturer
+    url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp280-ds001.pdf
+    revision: "1.26"
+    date: "2021-10"
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/BMP280-DS001-11_en.pdf
+    revision: "1.1"
+registers:
+  - { name: id,        addr: "0xD0",             desc: "chip id (0x58)" }
+  - { name: reset,     addr: "0xE0",             desc: "soft reset (write 0xB6)" }
+  - { name: status,    addr: "0xF3",             desc: "measuring / im_update flags" }
+  - { name: ctrl_meas, addr: "0xF4",             desc: "oversampling and power mode" }
+  - { name: config,    addr: "0xF5",             desc: "standby time and IIR filter" }
+  - { name: data,      addr: "0xF7", len: 6,     desc: "pressure and temperature output" }
+  - { name: calib,     addr: "0x88", len: 26,    desc: "compensation coefficients" }
+notes: |
+  BME280 adds a humidity channel and is a separate chip (different id and register map).
+  The M5Stack-hosted datasheet copy is revision 1.1, older than the current Bosch 1.26.

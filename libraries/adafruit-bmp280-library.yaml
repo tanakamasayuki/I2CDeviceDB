@@ -1,0 +1,5 @@
+key: adafruit-bmp280-library
+name: Adafruit_BMP280_Library
+repo: https://github.com/adafruit/Adafruit_BMP280_Library
+supports:
+  chips: [bmp280]

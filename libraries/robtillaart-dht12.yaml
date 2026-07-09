@@ -1,0 +1,5 @@
+key: robtillaart-dht12
+name: DHT12
+repo: https://github.com/RobTillaart/DHT12
+supports:
+  chips: [dht12]

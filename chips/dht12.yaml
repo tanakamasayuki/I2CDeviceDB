@@ -1,0 +1,20 @@
+key: dht12
+name: DHT12
+manufacturer: Aosong (ASAIR)
+tags: [temperature, humidity]
+addresses:
+  - addr: "0x5C"
+datasheets:
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/DHT12_en.pdf
+registers:
+  - { name: humidity_int, addr: "0x00", desc: "humidity integer part" }
+  - { name: humidity_dec, addr: "0x01", desc: "humidity decimal part" }
+  - { name: temp_int,     addr: "0x02", desc: "temperature integer part" }
+  - { name: temp_dec,     addr: "0x03", desc: "temperature decimal part" }
+  - { name: checksum,     addr: "0x04", desc: "low 8 bits of the sum of 0x00..0x03" }
+notes: |
+  I2C mode uses address 0x5C; also supports a DHT11-compatible single-wire mode.
+  No manufacturer (Aosong/ASAIR) datasheet URL is published for DHT12 (legacy part,
+  superseded by DHT20); the datasheet above is a M5Stack-hosted copy.

@@ -1,0 +1,5 @@
+key: m5stack-m5unit-env
+name: M5Unit-ENV
+repo: https://github.com/m5stack/M5Unit-ENV
+supports:
+  chips: [dht12, bmp280]
