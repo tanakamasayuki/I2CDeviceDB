@@ -47,13 +47,21 @@ static void emitReady()
 static void runSweep()
 {
   MARKER.println("CASE_BEGIN Address Sweep");
+  int found = 0;
   for (uint8_t addr = 0x00; addr <= 0x7F; addr++)
   {
     Wire.beginTransmission(addr);
-    Wire.endTransmission(); // ACK/NACK on the wire is what the LA captures
+    // endTransmission() == 0 => the device ACKed its address (present).
+    // The MCU is the authority for presence; the LA capture of the same sweep
+    // is noise-prone and kept only as transient/uniform data (not persisted).
+    if (Wire.endTransmission() == 0)
+    {
+      Serial.printf("FOUND 0x%02X\n", addr);
+      found++;
+    }
   }
   MARKER.println("CASE_END Address Sweep");
-  Serial.println("ALL_DONE");
+  Serial.printf("ALL_DONE found=%d\n", found);
 }
 
 static bool readLine(String &line)

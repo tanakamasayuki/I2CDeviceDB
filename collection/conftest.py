@@ -10,10 +10,14 @@ See docs/COLLECTION.ja.md.
 
 from __future__ import annotations
 
+import json
 import os
+import pty
 import re
+import shutil
 import signal
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -23,6 +27,21 @@ import yaml
 COLLECTION_ROOT = Path(__file__).parent
 REPO_ROOT = COLLECTION_ROOT.parent
 STAGING_DIR = COLLECTION_ROOT / "_staging"
+
+
+def pytest_sessionstart(session: pytest.Session) -> None:
+    """Wipe staging at the START of a run (not the end).
+
+    Outputs (.sr / .jsontrace.json / logs) are left in place after a run for
+    inspection and cleared here on the next run. The durable store is
+    ``captures/``, not ``_staging/``. Skipped under --collect-only so listing
+    probes never destroys the last run's artifacts.
+    """
+    if session.config.getoption("collectonly", False):
+        return
+    if STAGING_DIR.exists():
+        shutil.rmtree(STAGING_DIR)
+    STAGING_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # --------------------------------------------------------------------------- #
@@ -91,9 +110,13 @@ def _compose_channels(signals: list[str]) -> str:
 
 
 class SigrokCapture:
-    def __init__(self, proc: subprocess.Popen, path: Path):
+    def __init__(self, proc: subprocess.Popen, path: Path, log_fh, log_path: Path,
+                 stdin_fd: int):
         self.proc = proc
         self.path = path
+        self._log_fh = log_fh
+        self.log_path = log_path
+        self._stdin_fd = stdin_fd  # pty master; kept open so --continuous does not EOF
 
     def stop(self) -> None:
         """Stop a --continuous capture cleanly with SIGINT (flushes the .sr)."""
@@ -104,6 +127,11 @@ class SigrokCapture:
             except subprocess.TimeoutExpired:
                 self.proc.kill()
                 self.proc.wait()
+        if self._stdin_fd is not None:
+            os.close(self._stdin_fd)
+            self._stdin_fd = None
+        if not self._log_fh.closed:
+            self._log_fh.close()
 
     def decode_jsontrace(self, out: Path | None = None) -> Path:
         """Decode SCL/SDA (+UART_TX markers) to Google Trace JSON.
@@ -122,8 +150,39 @@ class SigrokCapture:
             *decoders, "--protocol-decoder-jsontrace",
         ]
         with out.open("wb") as fh:
-            subprocess.run(cmd, stdout=fh, check=True)
+            subprocess.run(cmd, stdin=subprocess.DEVNULL, stdout=fh,
+                           stderr=subprocess.PIPE, check=True)
         return out
+
+    def decode(self, out: Path | None = None) -> Path:
+        """Compact decode to JSONL (Level2 + Level4) via tools/decode.
+
+        Uniform across probes: every capture produces a decoded.jsonl here.
+        Whether it is persisted into captures/ is a separate policy (scan is
+        not persisted); this only writes to the transient _staging/.
+        """
+        trace = self.decode_jsontrace()
+        decoder = _load_decoder()
+        events = decoder.load_events(trace)
+        txns = decoder.parse_transactions(events)
+        decoder.annotate(txns, decoder.parse_markers(events))
+        records = decoder.to_records(txns)
+        out = out or self.path.with_suffix(".jsonl")
+        out.write_text(
+            "".join(json.dumps(r, separators=(",", ":")) + "\n" for r in records),
+            encoding="utf-8",
+        )
+        return out
+
+
+def _load_decoder():
+    """Import the offline decoder from tools/ (repo root, outside this uv project)."""
+    tools_dir = str(REPO_ROOT / "tools")
+    if tools_dir not in sys.path:
+        sys.path.insert(0, tools_dir)
+    import decode  # tools/decode.py
+
+    return decode
 
 
 @pytest.fixture
@@ -149,15 +208,37 @@ def sigrok_capture():
             "--continuous",
             "--output-file", str(path),
         ]
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        cap = SigrokCapture(proc, path)
+
+        # sigrok-cli --continuous only keeps running while stdin is an open tty;
+        # a non-tty / EOF stdin (pytest's /dev/null under fd-capture, or DEVNULL)
+        # makes it exit immediately with rc=0. Give it a pty slave (isatty True)
+        # and keep the master open so it never sees EOF. stdout/stderr go to a
+        # log file (not the terminal) so pytest's captured output isn't garbled.
+        log_path = path.with_suffix(".sigrok.log")
+        log_fh = log_path.open("wb")
+        master_fd, slave_fd = pty.openpty()
+        try:
+            proc = subprocess.Popen(
+                cmd,
+                stdin=slave_fd,
+                stdout=log_fh,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+        finally:
+            os.close(slave_fd)  # child holds its own copy; parent keeps master
+        cap = SigrokCapture(proc, path, log_fh, log_path, master_fd)
         started.append(cap)
 
         # Let the device arm before the probe emits traffic, or we clip the run.
         time.sleep(arm_delay)
         if proc.poll() is not None:
-            log = proc.stdout.read().decode(errors="replace") if proc.stdout else ""
-            raise RuntimeError(f"sigrok-cli exited early:\n{' '.join(cmd)}\n{log}")
+            log_fh.flush()
+            log = log_path.read_text(errors="replace").strip()
+            raise RuntimeError(
+                f"sigrok-cli exited early (rc={proc.returncode}):\n"
+                f"  {' '.join(cmd)}\n{log or '(no output)'}"
+            )
         return cap
 
     yield _start
