@@ -46,6 +46,8 @@ pytest は **pass/fail の判定器ではなく収集オーケストレータ** 
 
 窓が run にぴったり張り付き、ハードウェアトリガは不要。fx2lafw は `continuous: on` 対応を確認済み。
 
+**sigrok の stdin は tty で（実測の要注意点）**: `sigrok-cli --continuous` は **stdin が tty のときだけ**走り続け、非 tty / EOF（`-s` 無しの pytest fd キャプチャ下の `/dev/null` や `DEVNULL`）だと即 `rc=0` で終了する。conftest は sigrok に **疑似端末（pty）を stdin として与え master を開いたまま保持**（EOF を起こさない）、stdout/stderr はログファイルへ、`start_new_session` で pytest の端末から分離する。
+
 **起動タイミングの2つの落とし穴**（実測で判明）:
 
 - **boot ログの取りこぼし**: boot 時の一発 `READY` はシリアルを開く前に出ると失われる。初期化に時間がかかる probe だとなおさら。→ 受動待ちをやめ、**pytest 側から `READY` を能動ポーリング**して起動を確認する（probe は loop() で `READY` コマンドに再応答する）。
@@ -62,15 +64,21 @@ pytest は **pass/fail の判定器ではなく収集オーケストレータ** 
 
 probe は **(target × library)** 単位。target は基本 chip で、**product は probe に出ない**。命名だけ確定で、フォルダ実体は未作成。
 
-### アドレススキャン probe（最初・全製品共通）
+### アドレススキャン probe（presence 発見・検証。最初・全製品共通）
 
-生 Wire だけで全アドレスを舐め、応答を記録する（= Device Detection / Address Sweep）。
+生 Wire だけで全アドレスを舐め、**どのアドレスにデバイスが居るか（presence）**を調べる（= Device Detection / Address Sweep）。scan の産物は presence マップで、**capture データとしては永続化しない**（下記）。
 
-- ライブラリを一切 include しない → Wire 競合と無縁。製品非依存で **1 スケッチを全製品で使い回す**（接続した product はメタデータに記録）。
-- **全 7bit アドレス 0x00–0x7F（128 個）を極力広くスキャン**する。I2C 予約領域（0x00–0x07 / 0x78–0x7F）も含める（仕様を無視して予約アドレスに応答するデバイスが実在するため）。予約領域はフラグする。
-- presence（ACK/NACK）だけでなく、各アドレスへの**応答（返ってきたバイト列）も記録**する（Address Sweep）。
-- 予約アドレスへのアクセスは副作用があり得る（例: 0x00 general call がデバイスをリセット）。承知の上で行い、必要なら分離する。
-- 速度でスキャン結果はほぼ変わらないので nominal 1 本でよい。
+- ライブラリを一切 include しない → Wire 競合と無縁。製品非依存で **1 スケッチを全製品で使い回す**。
+- **全 7bit アドレス 0x00–0x7F（128 個）を極力広くスキャン**する。I2C 予約領域（0x00–0x07 / 0x78–0x7F）も含める（仕様を無視して予約アドレスに応答するデバイスが実在するため）。
+- 予約アドレスへのアクセスは副作用があり得る（例: 0x00 general call がデバイスをリセット）。承知の上で行う。
+- 速度で presence はほぼ変わらないので nominal 1 本でよい。
+
+**presence の真実は MCU（実測で確定）**:
+
+- presence は **MCU の `Wire.endTransmission()`（0 = ACK = present）が権威**。MCU は 9 クロック目の SDA LOW で ACK 判定するので、デバイス無し＋プルアップ無しの浮きバスでは正しく全 NACK（0 件）になる。
+- **同じ scan の LA キャプチャは presence 判定に使わない**。浮きバスでは LA デコーダがノイズを ACK と誤読し、ACK アドレスも decoded transaction 件数（例 128↔120）も**実行ごとに不安定**。LA データは実ユニット来訪までの参考／統一パイプラインの副産物として `_staging` に残すだけで**非永続**。
+- MCU は presence を **USB 制御シリアル**へ `FOUND 0xNN`（末尾 `ALL_DONE found=N`）で出す。CASE マーカーは従来どおり LA 観測線 `Serial1`。pytest が `FOUND` を集めて presence マップ化する。
+- **ゲート**: MCU の presence が 0 件なら scan は失敗させて止める（居ないデバイスに chip probe を回しても無意味）。chip probe 側も各自 `RUN` 冒頭で対象アドレスの presence を自己チェックする想定（scan 非依存）。
 
 ### ライブラリ probe：分ける単位は「呼び出し方（コードパス）」
 
@@ -163,6 +171,7 @@ uv run --env-file .env pytest --product m5stack-u001
 
 ## キャプチャの scope・収集・表示
 
+- **全 probe は同一パイプライン**（flash → LA 取得 → decode）。probe を系統で分けない。**差は永続化のみ**: scan（presence）は非永続、chip probe（byte 列）は `captures/` へ永続。
 - **capture は既定 chip-scoped**（target = chip）。通信はチップ + ライブラリ + 設定で決まり製品非依存（違いはアドレスバイト程度で導出可能）。その chip を含むどの製品でも使い回す。メタデータは再現環境のみ（日付・個体は持たない）。ユニット結合 API の例外ライブラリのみ unit-scoped。
 - **収集は無制限**。過去データがあっても再取得してよい。全部残す（差異もデータ）。
 - **絞るのは表示（display）側**。論理キー `(target × library × operation × speed × condition)` でグループ化し、一致していれば**代表を 1 つだけ**見せ、食い違うときだけ「ここが違う」を強調する（[SITE.ja.md](SITE.ja.md)）。差異軸はライブラリ版・速度・条件・内容（日付・個体は持たない）。
@@ -203,6 +212,10 @@ CASE_END Initialization
 4. UART マーカー行（`CASE_*` / `PHASE`）を timestamp で突き合わせ、各 transaction に operation / phase を付与（Level4）→ compact な `decoded.jsonl`（**永続**、数 KB）。
 5. 再現メタデータ（Level3: fqbn / platform・library version）を添付。日付は付けない。
 6. decoded 内容のハッシュで命名し（[DATA_MODEL.ja.md](DATA_MODEL.ja.md)）、validate 通過分を `captures/` へ。同一内容は同名で自然に畳まれる。
+
+- decode はハーネスに統合済み（`cap.decode()` が `tools/decode.py` で `_staging/<name>.jsonl` を生成）。`_staging` は**実行開始時にワイプ**する一時置き場（実行直後は残る）で、永続ストアは `captures/`。
+- **scan の decoded は永続化しない**（presence は非 capture データ。前述「presence の真実は MCU」）。永続対象は chip probe の byte 列だけ。
+- decoded は絶対 timestamp を持たない（identity・内容ハッシュに含めない。timing 系 condition のみタイミング特徴を後で足す）。
 
 ## 検証（validate）の範囲
 

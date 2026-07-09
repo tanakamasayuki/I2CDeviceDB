@@ -153,10 +153,12 @@ captures/raw/bmp280__m5stack-m5unit-env-1.0.0__400k__nominal__a1b2c3d4.sr
 
 capture は既定で **chip-scoped**（target = chip）。製品非依存なので、その chip を含むどの製品でも使い回す。メタデータは**再現に必要な環境のみ**（[SPEC.ja.md](SPEC.ja.md) のメタデータ節）で、日付・物理個体は持たない。ユニット結合 API の例外ライブラリのみ **unit-scoped**（key が unit）。正式なフィールド／ディレクトリ構成は schema 確定時に決める。
 
-decoded の 1 行イメージ（フィールドは調整前提）:
+**永続対象は capture probe（byte 列）だけ。** 全 probe は同一パイプライン（flash → LA 取得 → decode）だが、`captures/` に残すのは chip probe のみ。**scan（presence）は捕っても永続化しない**（presence の真実は MCU で、scan の LA データはノイズ。[COLLECTION.ja.md](COLLECTION.ja.md)）。中間物（jsontrace）と収集中の作業ファイルは `collection/_staging/`（実行開始時にワイプ）に置き、`captures/` は validate 通過済みの永続データだけを持つ。
+
+decoded の 1 行イメージ（フィールドは調整前提。実装は `tools/decode.py`。**絶対 ts は持たない** — identity・内容ハッシュに含めないため）:
 
 ```json
-{"ts": 0.001234, "addr": "0x76", "rw": "w", "data": ["0xF4", "0x27"], "ack": [true, true], "operation": "Initialization", "phase": "configure"}
+{"i": 12, "addr": "0x76", "rw": "write", "addr_ack": true, "bytes": [{"value": "0xF4", "ack": true}], "stop": true, "operation": "Initialization", "phase": "configure"}
 ```
 
 ## ライブラリ選定基準

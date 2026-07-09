@@ -109,9 +109,9 @@ CASE_END readTemperature
 
 ### アドレススキャンと全アドレス取得
 
-- **Device Detection / Address Sweep は全 7bit アドレス（0x00–0x7F, 128 個）を対象に、極力広くスキャンする。** I2C 仕様上の予約領域（0x00–0x07 / 0x78–0x7F）も含める。仕様を無視して予約アドレス（0x00 など）に応答するデバイスが実在するため。予約領域は decoded 上でフラグする。
-- **Address Sweep** は「presence（ACK/NACK）」だけでなく、各アドレスに対して実際に通信を試みた**応答（返ってきたバイト列含む）も記録**する = デバイスの全アドレス空間の振る舞いを取得。リバースエンジニアリング用途の参考データ。
-- 予約アドレスへのアクセスは副作用があり得る（例: 0x00 general call がデバイスをリセットする）。副作用の可能性を承知の上で行い、必要なら他の収集と分離する。詳細は [COLLECTION.ja.md](COLLECTION.ja.md)。
+- **Device Detection / Address Sweep は全 7bit アドレス（0x00–0x7F, 128 個）を対象に、極力広くスキャンする。** I2C 仕様上の予約領域（0x00–0x07 / 0x78–0x7F）も含める。仕様を無視して予約アドレス（0x00 など）に応答するデバイスが実在するため。
+- **presence（どのアドレスが居るか）の権威は MCU（`endTransmission` の ACK）**。同じスキャンの LA キャプチャは、浮きバスではノイズを ACK と誤読し ACK アドレスも件数も実行ごとにブレるため、**presence 判定には使わない**（実測で確定）。scan の産物は MCU の presence マップで、**capture としては永続化しない**。詳細は [COLLECTION.ja.md](COLLECTION.ja.md)。
+- 予約アドレスへのアクセスは副作用があり得る（例: 0x00 general call がデバイスをリセットする）。副作用の可能性を承知の上で行う。
 
 ## データの優先順位（Level 1〜5）
 
