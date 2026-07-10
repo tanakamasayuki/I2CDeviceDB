@@ -4,6 +4,17 @@
 > ステータス: planning  
 > 役割: profile schema と収集範囲を実機で固めるための一時的な作業計画。この文書を全 chip の恒久 TODO 形式にはしない。
 
+## 到着前の準備状況
+
+- [x] `sht30__characterize` の safe P0 firmware / pytest driver。
+- [x] `qmp6988__characterize` の safe P0 firmware / pytest driver。
+- [x] `--product m5stack-u001-c` から scan + 2 probe を導出。
+- [x] USB serial `EVENT` + raw / decoded + provenance の observation 候補生成。
+- [x] ESP32-S3 core 3.3.10 で両 firmware をコンパイル確認。
+- [x] scenario plan とハード不要テスト。
+- [ ] 実機到着後に GPIO、電源、pull-up、serial、sigrok channel をベンチに合わせる。
+- [ ] 100kHz の初回 run をレビュー後、400kHz と反復収集へ進む。
+
 ## 目的
 
 基本カタログの拡充とは独立して、性質の異なる 2 chip を生成まで一巡させる。

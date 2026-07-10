@@ -1,0 +1,29 @@
+schema: i2cdevicedb/scenario-plan/v0
+key: sht30/p0
+target: sht30
+product: m5stack-u001-c
+runner: firmware
+probe: sht30__characterize
+safety: reversible-write
+operations:
+  - device-detection
+  - soft-reset
+  - status-read-clear
+  - single-shot-polling
+  - single-shot-clock-stretch
+parameters:
+  repeatability: [high, medium, low]
+  bus_speed_hz: [100000, 400000]
+outputs:
+  - presence
+  - reset-status
+  - nack-until-ready
+  - measurement-frame
+  - crc-result
+  - command-to-ready-us
+  - read-blocking-us
+deferred:
+  - general-call-reset
+  - alert-limits
+  - heater
+  - periodic-mode

@@ -319,7 +319,7 @@ captures/raw/bmp280__m5stack-m5unit-env-1.0.0__400k__nominal__a1b2c3d4.sr
 
 capture は既定で **chip-scoped**（target = chip）。製品非依存なので、その chip を含むどの製品でも使い回す。capture 自体は内容アドレスとし、再現環境・取得日時・物理個体・product は参照元 observation に置く。ユニット結合 API の例外ライブラリのみ **unit-scoped**（key が unit）。正式なフィールド／ディレクトリ構成は schema 確定時に決める。
 
-`captures/` に残すのは validate を通過した chip probe のバス記録である。**scan は MCU の presence マップを observation として保存するが、同時取得した LA データは capture として永続化しない**（presence の真実は MCU で、浮いたバスの LA decode はノイズ。[COLLECTION.ja.md](COLLECTION.ja.md)）。中間物（jsontrace）と収集中の作業ファイルは `collection/_staging/`（実行開始時にワイプ）に置く。
+`captures/` に残すのは validate を通過した chip probe のバス記録である。**scan は MCU の presence マップを observation として保存するが、同時取得した LA データは capture として永続化しない**（presence の真実は MCU で、浮いたバスの LA decode はノイズ。[COLLECTION.ja.md](COLLECTION.ja.md)）。中間物（jsontrace）と収集中の作業ファイルは `collection/_staging/` に置き、次の hardware capture run 開始時にワイプする（unit test / `--collect-only` では保持する）。
 
 decoded の 1 行イメージ（フィールドは調整前提。実装は `tools/decode.py`。絶対 timestamp は identity・内容ハッシュに含めない）:
 

@@ -19,6 +19,7 @@ import signal
 import subprocess
 import sys
 import time
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -27,21 +28,28 @@ import yaml
 COLLECTION_ROOT = Path(__file__).parent
 REPO_ROOT = COLLECTION_ROOT.parent
 STAGING_DIR = COLLECTION_ROOT / "_staging"
+SCAN_FAILED = pytest.StashKey[bool]()
 
 
-def pytest_sessionstart(session: pytest.Session) -> None:
-    """Wipe staging at the START of a run (not the end).
+def pytest_configure(config: pytest.Config) -> None:
+    config.stash[SCAN_FAILED] = False
+
+
+@pytest.fixture(scope="session")
+def staging_session(request: pytest.FixtureRequest) -> Path:
+    """Prepare staging once, and only for a run that actually captures.
 
     Outputs (.sr / .jsontrace.json / logs) are left in place after a run for
-    inspection and cleared here on the next run. The durable store is
-    ``captures/``, not ``_staging/``. Skipped under --collect-only so listing
-    probes never destroys the last run's artifacts.
+    inspection and cleared when the next hardware capture run requests this
+    fixture. Unit tests and --collect-only therefore never destroy the last
+    run's artifacts. The durable store is ``captures/``, not ``_staging/``.
     """
-    if session.config.getoption("collectonly", False):
-        return
+    if request.config.getoption("collectonly", False):
+        return STAGING_DIR
     if STAGING_DIR.exists():
         shutil.rmtree(STAGING_DIR)
     STAGING_DIR.mkdir(parents=True, exist_ok=True)
+    return STAGING_DIR
 
 
 # --------------------------------------------------------------------------- #
@@ -186,7 +194,7 @@ def _load_decoder():
 
 
 @pytest.fixture
-def sigrok_capture():
+def sigrok_capture(staging_session: Path):
     """Factory: start a --continuous capture; teardown SIGINTs any still running."""
     started: list[SigrokCapture] = []
 
@@ -257,7 +265,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         action="store",
         default=None,
         help="Product key (products/<key>.yaml). Selects only the probes that "
-             "product needs (scan + each chip x supporting library).",
+             "product needs (scan + characterization + supporting libraries).",
     )
 
 
@@ -267,12 +275,12 @@ def _load_yaml(path: Path) -> dict:
 
 
 def derive_probe_keys(product_key: str) -> set[str]:
-    """probe set for a product = {"scan"} + {"<chip>__<library>"}.
+    """Derive scan + available characterization/library probes for a product.
 
     chip list comes from products/<key>.yaml components; libraries from every
-    libraries/*.yaml whose supports.chips includes that chip. Mirrors the
-    coverage-derivation logic (docs/COLLECTION.ja.md), so there is no hand-kept
-    command table to drift.
+    libraries/*.yaml whose supports.chips includes that chip. A characterization
+    probe is selected when sketches/<chip>__characterize exists. Mirrors the
+    coverage-derivation logic, so there is no per-product command table to drift.
     """
     product_path = REPO_ROOT / "products" / f"{product_key}.yaml"
     if not product_path.exists():
@@ -285,6 +293,10 @@ def derive_probe_keys(product_key: str) -> set[str]:
     chips = {c["chip"] for c in product.get("components", []) if c.get("chip")}
 
     keys = {"scan"}
+    for chip in chips:
+        key = f"{chip}__characterize"
+        if (COLLECTION_ROOT / "sketches" / key).is_dir():
+            keys.add(key)
     for lib_path in sorted((REPO_ROOT / "libraries").glob("*.yaml")):
         lib = _load_yaml(lib_path)
         lib_key = lib.get("key", lib_path.stem)
@@ -312,4 +324,104 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
 
     if deselected:
         config.hook.pytest_deselected(items=deselected)
-        items[:] = selected
+    # Presence is the safety gate and must run before any chip traffic.
+    selected.sort(key=lambda item: (0 if _probe_marker(item) == "scan" else 1, item.nodeid))
+    items[:] = selected
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
+    outcome = yield
+    report = outcome.get_result()
+    if (
+        _probe_marker(item) == "scan"
+        and report.when == "call"
+        and report.failed
+    ):
+        item.config.stash[SCAN_FAILED] = True
+
+
+def pytest_runtest_setup(item: pytest.Item) -> None:
+    if _probe_marker(item) != "scan" and item.config.stash[SCAN_FAILED]:
+        pytest.skip("address scan failed; chip probes are gated for this run")
+
+
+# --------------------------------------------------------------------------- #
+# structured probe events + observation candidates
+# --------------------------------------------------------------------------- #
+EVENT_RE = re.compile(rb"EVENT (\{[^\r\n]+\})")
+
+
+def parse_probe_events(serial_output: bytes) -> list[dict]:
+    """Extract one-line JSON EVENT records emitted by a probe."""
+    events: list[dict] = []
+    for match in EVENT_RE.finditer(serial_output):
+        try:
+            event = json.loads(match.group(1))
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            raise ValueError(f"invalid probe EVENT: {match.group(1)!r}") from exc
+        if not isinstance(event, dict) or not event.get("type"):
+            raise ValueError(f"probe EVENT must be an object with type: {event!r}")
+        events.append(event)
+    return events
+
+
+def _relative_artifact(path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(REPO_ROOT.resolve()))
+    except ValueError:
+        return str(path.resolve())
+
+
+@pytest.fixture
+def observation_candidate(request: pytest.FixtureRequest):
+    """Write a provisional observation JSON beside staging capture artifacts.
+
+    This is deliberately a staging artifact, not the curated observations/
+    schema. It preserves enough input/result/provenance to curate after the
+    first hardware runs without prematurely freezing that schema.
+    """
+    product = request.config.getoption("product") or os.getenv("TEST_PRODUCT", "").strip()
+    specimen = os.getenv("TEST_SPECIMEN_ID", "").strip()
+    if not product:
+        raise pytest.UsageError(
+            "characterization requires --product or TEST_PRODUCT for provenance"
+        )
+    if not specimen:
+        raise pytest.UsageError(
+            "characterization requires TEST_SPECIMEN_ID (anonymous bench-local ID)"
+        )
+
+    def _write(*, target: str, probe: str, scenario: str, events: list[dict],
+               capture: Path, decoded: Path, condition: str = "nominal") -> Path:
+        rate = os.getenv("SIGROK_SAMPLERATE", "8MHz")
+        bus_hz = int(os.getenv("TEST_I2C_BUS_HZ", "100000"))
+        record = {
+            "schema": "i2cdevicedb/observation-candidate/v0",
+            "kind": "characterization",
+            "target": target,
+            "probe": probe,
+            "scenario": scenario,
+            "condition": condition,
+            "events": events,
+            "artifacts": {
+                "raw": _relative_artifact(capture),
+                "decoded": _relative_artifact(decoded),
+            },
+            "provenance": {
+                "product": product,
+                "specimen_id": specimen,
+                "acquired_at": datetime.now(UTC).isoformat(),
+                "bus_speed_hz": bus_hz,
+                "sigrok_samplerate": rate,
+                "supply_voltage_v": os.getenv("TEST_SUPPLY_VOLTAGE_V") or None,
+                "pullup_ohms": os.getenv("TEST_PULLUP_OHMS") or None,
+                "fqbn": "esp32:esp32:esp32s3",
+                "platform": "esp32:esp32@3.3.10",
+            },
+        }
+        out = STAGING_DIR / f"{probe}.observation.json"
+        out.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+        return out
+
+    return _write

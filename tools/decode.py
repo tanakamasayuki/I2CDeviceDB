@@ -39,7 +39,10 @@ DECODERS = [
 
 ADDR_RE = re.compile(r"^Address (write|read): ([0-9A-Fa-f]+)$")
 DATA_RE = re.compile(r"^Data (write|read): ([0-9A-Fa-f]+)$")
-MARKER_RE = re.compile(r"(CASE_BEGIN|CASE_END|PHASE)\s*(.*?)(?=CASE_BEGIN|CASE_END|PHASE|$)")
+MARKER_RE = re.compile(
+    r"(CASE_BEGIN|CASE_END|PHASE|INPUT|RESULT)\s*"
+    r"(.*?)(?=CASE_BEGIN|CASE_END|PHASE|INPUT|RESULT|$)"
+)
 
 
 # --------------------------------------------------------------------------- #

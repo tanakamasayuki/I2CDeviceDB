@@ -1,0 +1,32 @@
+schema: i2cdevicedb/scenario-plan/v0
+key: qmp6988/p0
+target: qmp6988
+product: m5stack-u001-c
+runner: firmware
+probe: qmp6988__characterize
+safety: reversible-write
+operations:
+  - device-detection
+  - soft-reset
+  - identity-read
+  - reset-default-read
+  - calibration-read
+  - forced-measurement
+  - normal-measurement
+parameters:
+  bus_speed_hz: [100000, 400000]
+outputs:
+  - presence
+  - chip-id
+  - reset-defaults
+  - calibration-bytes
+  - measurement-status
+  - forced-measurement-us
+  - raw-pressure-temperature
+  - normal-samples
+deferred:
+  - high-speed-mode
+  - spi-mode
+  - oversampling-sweep
+  - iir-sweep
+  - reserved-bit-writes

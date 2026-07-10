@@ -15,5 +15,8 @@ dependencies = [
 addopts = "--save-state"
 pythonpath = ["."]
 markers = [
-    "probe(key): probe identity this test drives (\"scan\" or \"<chip>__<library>\").",
+    "probe(key): probe identity (scan, <chip>__characterize, or <chip>__<library>).",
+]
+filterwarnings = [
+    "ignore:record_xml_attribute is an experimental feature:pytest.PytestExperimentalApiWarning",
 ]
