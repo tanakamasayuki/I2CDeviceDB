@@ -18,7 +18,7 @@ DONE_RE = re.compile(rb"ALL_DONE found=(\d+)")
 
 
 @pytest.mark.probe("scan")
-def test_address_sweep(dut, wait_ready, sigrok_capture):
+def test_address_sweep(dut, wait_ready, sigrok_capture, expected_product_addresses):
     wait_ready(dut)
 
     cap = sigrok_capture(signals=["UART_TX", "SCL", "SDA"], out="scan.sr")
@@ -31,6 +31,13 @@ def test_address_sweep(dut, wait_ready, sigrok_capture):
 
     found = sorted({m.group(1).decode() for m in FOUND_RE.finditer(before)})
     print(f"scan: MCU found {len(found)} device(s): {found}")
+    missing = expected_product_addresses - set(found)
+    extra = set(found) - expected_product_addresses
+    if expected_product_addresses:
+        print(
+            f"scan: expected={sorted(expected_product_addresses)} "
+            f"missing={sorted(missing)} extra={sorted(extra)}"
+        )
 
     # Uniform pipeline: LA capture -> decode still runs (transient, not persisted).
     # scan's LA data is noise-prone on a floating bus: the decoded transaction
@@ -47,5 +54,11 @@ def test_address_sweep(dut, wait_ready, sigrok_capture):
             "scan found no I2C devices (MCU saw all-NACK). Check wiring, power, "
             "pull-ups, GPIO (TEST_I2C_SDA / TEST_I2C_SCL), and that a unit is "
             "connected.",
+            pytrace=False,
+        )
+    if missing:
+        pytest.fail(
+            f"scan is missing product component address(es): {sorted(missing)}; "
+            f"found={found}",
             pytrace=False,
         )

@@ -64,6 +64,18 @@ def test_marker_parser_keeps_input_out_of_case_name():
     ]
 
 
+def test_jsontrace_parser_repairs_unescaped_uart_quote():
+    from conftest import _load_decoder
+
+    decoder = _load_decoder()
+    raw = (
+        '{"traceEvents":['
+        '{"pid":"uart-1","tid":"RX","ph":"B","name":"""}'
+        "]}"
+    )
+    assert decoder.parse_jsontrace(raw)[0]["name"] == '"'
+
+
 @pytest.mark.parametrize("target", ["sht30", "qmp6988"])
 def test_p0_scenario_points_to_available_probe(target):
     path = REPO_ROOT / "scenarios" / target / "p0.yaml"

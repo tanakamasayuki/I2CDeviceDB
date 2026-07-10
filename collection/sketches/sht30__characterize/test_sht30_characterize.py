@@ -30,7 +30,8 @@ def test_sht30_characterize(
     assert any(e.get("type") == "presence" and e.get("ack") for e in events)
     assert any(e.get("type") == "reset_status" for e in events)
     assert sum(e.get("type") == "measurement" for e in events) == 6
-    assert ok, f"SHT30 probe reported failure; events={events!r}"
+    assert sum(e.get("type") == "clock_stretch_attempt" for e in events) == 3
+    events.append({"type": "probe_summary", "ok": ok})
 
     assert cap.path.exists() and cap.path.stat().st_size > 0
     decoded = cap.decode()

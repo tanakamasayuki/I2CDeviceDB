@@ -52,6 +52,22 @@ def sigrok_cli() -> str:
     return os.getenv("SIGROK_CLI", "sigrok-cli")
 
 
+def parse_jsontrace(raw: str) -> list[dict]:
+    """Parse sigrok JSON Trace, repairing its unescaped UART quote output.
+
+    libsigrokdecode's jsontrace formatter does not escape a decoded double-quote
+    UART byte in a ``name`` value, producing invalid JSON. Preserve it as a quote;
+    the rest of the trace remains unchanged.  This is exercised by JSON-heavy
+    marker lines emitted by the characterization probes.
+    """
+    raw = re.sub(
+        r'("name"\s*:\s*)"""(?=\s*[,}])',
+        lambda match: match.group(1) + json.dumps('"'),
+        raw,
+    )
+    return json.loads(raw)["traceEvents"]
+
+
 def load_events(input_path: Path) -> list[dict]:
     """Return the jsontrace traceEvents, decoding a .sr on the fly if needed."""
     if input_path.suffix == ".sr":
@@ -61,9 +77,9 @@ def load_events(input_path: Path) -> list[dict]:
             subprocess.run(cmd, stdin=subprocess.DEVNULL, stdout=tmp,
                            stderr=subprocess.PIPE, check=True)
             tmp.seek(0)
-            return json.load(tmp)["traceEvents"]
+            return parse_jsontrace(tmp.read().decode("utf-8"))
     with input_path.open(encoding="utf-8") as fh:
-        return json.load(fh)["traceEvents"]
+        return parse_jsontrace(fh.read())
 
 
 # --------------------------------------------------------------------------- #

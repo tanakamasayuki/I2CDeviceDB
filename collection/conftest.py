@@ -274,6 +274,20 @@ def _load_yaml(path: Path) -> dict:
         return yaml.safe_load(fh) or {}
 
 
+@pytest.fixture
+def expected_product_addresses(request: pytest.FixtureRequest) -> set[str]:
+    """Expected 7-bit addresses from the selected product BOM."""
+    product_key = request.config.getoption("product")
+    if not product_key:
+        return set()
+    product = _load_yaml(REPO_ROOT / "products" / f"{product_key}.yaml")
+    return {
+        component["addr"].upper().replace("0X", "0x")
+        for component in product.get("components", [])
+        if component.get("addr")
+    }
+
+
 def derive_probe_keys(product_key: str) -> set[str]:
     """Derive scan + available characterization/library probes for a product.
 

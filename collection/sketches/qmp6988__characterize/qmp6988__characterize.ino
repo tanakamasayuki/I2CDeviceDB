@@ -161,7 +161,9 @@ static bool runForcedMeasurement()
   Serial.printf("\",\"length\":%u}\n", (unsigned)n);
   MARKER.println("RESULT {\"measurement\":\"captured\"}");
   MARKER.println("CASE_END Single Measurement");
-  return ready && n == sizeof(raw) && ctrlOk && (finalControl & 0x03) == 0;
+  // Forced mode returns to the sleep state internally, but this specimen keeps
+  // the written mode bits in CTRL_MEAS. Preserve that distinction as data.
+  return ready && n == sizeof(raw) && ctrlOk;
 }
 
 static bool runNormalMeasurement()

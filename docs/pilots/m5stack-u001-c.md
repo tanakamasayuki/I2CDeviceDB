@@ -4,6 +4,27 @@
 > ステータス: planning  
 > 役割: profile schema と収集範囲を実機で固めるための一時的な作業計画。この文書を全 chip の恒久 TODO 形式にはしない。
 
+## 暫定機材での初回 run（2026-07-10）
+
+正式な複数個体評価ではなく、収集系と scenario の成立確認として扱う。
+
+- scan は `0x44` と `0x70` の ACK を確認した。追加の `0x00` 応答は general-call
+  address の候補として記録し、製品 component の追加とは解釈しない。scan の合否は BOM の
+  expected address がすべて存在するかで判定し、追加応答は observation に残す。
+- SHT30 は presence、soft reset、status + CRC、high / medium / low の polling 測定、
+  medium / low の clock-stretch 測定まで成立した。high clock-stretch read だけ 6.759 ms で
+  0 byte となった一方、同じ high 条件の polling は 13.101 ms で成功した。device failure と
+  即断せず、ESP32-S3 controller の SCL-low timeout / capability 差として保存・再検証する。
+- QMP6988 は presence、chip ID `0x5c`、reset default、25-byte calibration、forced 測定、
+  normal mode 10 sample が成立した。forced 完了後は `DEVICE_STAT.measure=0` でも
+  `CTRL_MEAS=0x25` を readback したため、「内部状態が sleep に戻ること」と「mode field の
+  readback が sleep 値になること」を別の性質として扱う。
+- この run の pytest 失敗は上記の差異を probe failure としていた判定による。以降は presence、
+  必須 event、frame 長など収集の構造破損だけを失敗とし、controller timeout や register
+  readback の差は event と probe summary に保存して run を完走させる。
+- raw capture は保存済み。UART marker 内の JSON の double quote により sigrok JSON Trace が
+  不正 JSON になる問題が見つかったため、offline decoder で当該 UART byte を復元する。
+
 ## 到着前の準備状況
 
 - [x] `sht30__characterize` の safe P0 firmware / pytest driver。

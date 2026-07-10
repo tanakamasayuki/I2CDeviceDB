@@ -167,9 +167,26 @@ static bool runStretchingMeasurement(const MeasurementCommand &m)
   delay(1); // datasheet minimum SCL-free interval before the read
   uint8_t data[6] = {0};
   const uint32_t started = micros();
-  const size_t n = readBytes(data, sizeof(data));
+  size_t n = readBytes(data, sizeof(data));
   const uint32_t elapsed = micros() - started;
-  emitFrame("clock_stretch", m.repeatability, data, n, elapsed);
+  Serial.printf("EVENT {\"type\":\"clock_stretch_attempt\","
+                "\"repeatability\":\"%s\",\"received\":%u,"
+                "\"blocking_us\":%lu}\n",
+                m.repeatability, (unsigned)n, (unsigned long)elapsed);
+  const char *mode = "clock_stretch";
+  uint32_t finalElapsed = elapsed;
+  if (n != sizeof(data))
+  {
+    // Some controllers have a hardware SCL-low limit shorter than SHT30's
+    // maximum high-repeatability measurement. Recover the completed result in
+    // a second read and preserve the first timeout as a separate observation.
+    delay(m.maxDelayMs + 2);
+    const uint32_t retryStarted = micros();
+    n = readBytes(data, sizeof(data));
+    finalElapsed = micros() - retryStarted;
+    mode = "clock_stretch_recovery";
+  }
+  emitFrame(mode, m.repeatability, data, n, finalElapsed);
   MARKER.println("RESULT {\"measurement\":\"captured\"}");
   MARKER.println("CASE_END Single Measurement");
   return n == 6 && crc8(data, 2) == data[2] && crc8(data + 3, 2) == data[5];
