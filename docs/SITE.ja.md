@@ -19,7 +19,7 @@ GitHub Pages は `/` か `/docs` か別ブランチのみ公開可能。**生成
 ## ビルドの流れ（想定）
 
 ```text
-main の YAML マスタ + captures/
+main の YAML マスタ + observations/ + captures/
     ↓ tools/ のサイトジェネレータ（GitHub Actions）
 HTML（静的） + JSON（データ） + captures コピー
     ↓
@@ -38,7 +38,7 @@ gh-pages ブランチ → GitHub Pages
 
 | 階層 | 中身 | サイズ | アクセス | 検索/フィルタ |
 |------|------|--------|----------|---------------|
-| カタログ | chips / products / libraries + capture メタデータ | 小（数千件でも 1MB 未満） | 一覧・横断検索 | 必要 |
+| カタログ | chips / products / libraries + profile + observation 索引 | 小〜中 | 一覧・横断検索 | 必要 |
 | キャプチャ詳細 | decoded トランザクション列（.jsonl） | 大（1 キャプチャごと） | 1 件ずつ開く | 基本不要 |
 
 ### カタログ → 1 本の `index.json` + JS メモリ内フィルタ
@@ -74,16 +74,18 @@ gh-pages ブランチ → GitHub Pages
 | 見せたいもの | データ源 | 生成方式 |
 |--------------|----------|----------|
 | どんなデバイスか（カタログ） | chips / products | 静的 |
-| どう呼び出すか（操作シーケンス） | library × operation（マーカー由来） | 静的 |
+| どうアクセスするか（register / command / operation） | chip behavior profile | 静的 |
+| どの根拠で確認したか | evidence → observation / datasheet | 静的 + 詳細遅延ロード |
+| 既存実装がどう呼び出すか | library observation × operation | 静的 |
 | 実際に流れる通信 | decoded transaction（.jsonl） | クライアント fetch |
 
-ビューアの操作は capture モデルに対応：**デバイス → ライブラリ → 操作 → decoded トランザクション列（address / R/W / バイト列 / ACK-NACK を operation・phase で色分け）**。同一操作を別ライブラリで並べる compare もこの延長で表示する。
+profile ビューは **デバイス → transport / register / command / operation / state / timing → evidence** を辿れるようにする。observation / capture ビューは **デバイス → characterization scenario または library → 操作 → 入力・結果・provenance → decoded transaction** とする。同一操作を別ライブラリ・別 specimen・別条件で並べる compare もこの延長で表示する。
 
 ## 複数データの表示（代表と差分）
 
-収集は無制限なので、同じ論理キー `(target × library × operation × speed × condition)` に複数の capture が溜まる。**「見るべきものが分からなくなる」のを防ぐため、表示側で絞る**。
+収集は無制限なので、同じ論理キー `(target × probe × operation × speed × condition)` に複数の observation / capture が溜まる。**「見るべきものが分からなくなる」のを防ぐため、表示側で絞る**。
 
 - グループ内が**一致**していれば **代表を 1 つだけ**表示（他は「N 件・同一」と畳む）。
 - **食い違う**ときだけ「ここが違う」を強調（compare 由来の差分。版差 / 速度・条件差 / 内容差）。差が出る所は自動フラグ＋必要なら手書き note。
 - 代表の選び方（例: 最新版・nominal・canonical）とグループ化キーは実装時に確定。
-- グループ内の差異軸（ライブラリ版・速度・条件など）で切り替えて見られるようにする（日付・個体は持たない）。
+- グループ内の差異軸（scenario / ライブラリ版・速度・条件・匿名 specimen・環境など）で切り替えて見られるようにする。取得日時・specimen は provenance として表示できるが、identity や代表選択の主軸にはしない。

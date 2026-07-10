@@ -3,10 +3,12 @@
 I2CDeviceDB の収集ハーネス（uv + pytest ＋ sigrok ＋ Arduino probe）。設計は
 [../docs/COLLECTION.ja.md](../docs/COLLECTION.ja.md) を参照。
 
-pytest は pass/fail 判定器ではなく **収集オーケストレータ**として使う。probe を
+pytest は実測値の pass/fail 判定器ではなく **収集オーケストレータ**として使う。probe を
 書き込み・実行し、`--continuous` + SIGINT で sigrok キャプチャを run に張り付け、
-`_staging/` に `.sr` を残す。デコード → 内容ハッシュ命名 → `captures/` への永続化は
-オフラインの別工程（`tools/`、未実装）。
+`_staging/` に `.sr` を残す。将来は既存実装の利用経路を記録する library probe に加え、
+低レベル I2C と宣言的 scenario で状態・副作用・timing を確認する characterization probe を
+同じパイプラインで駆動する。デコード → observation 作成 → 内容ハッシュ命名 →
+`captures/` への永続化はオフラインの別工程（`tools/`、未実装）。
 
 ## セットアップ
 
@@ -36,7 +38,7 @@ uv run pytest --collect-only --product m5stack-u001
 uv run --env-file .env pytest sketches/scan
 ```
 
-## probe の追加
+## library probe の追加
 
 1 probe = 1 スケッチフォルダ（`sketches/<probe>/`）にスケッチとテストを同居させる。
 `<probe>` は `scan` か `<chip>__<library>`。
@@ -50,4 +52,5 @@ sketches/<probe>/
 ```
 
 `@pytest.mark.probe("<probe>")` を付けると `--product` の導出セットと突き合わせて選択される。
-現状は `scan`（全アドレス掃引）のみ実装。
+現状は `scan`（全アドレス掃引）のみ実装。characterization の scenario / runner / adapter の
+配置と安全規約は [../docs/COLLECTION.ja.md](../docs/COLLECTION.ja.md) を参照。
