@@ -1,0 +1,9 @@
+key: m5stack-u164
+name: Unit AC Measure
+vendor: m5stack
+sku: U164
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/AC%20Measure%20Unit
+components:
+  - chip: stm32g030
+    addr: "0x42"

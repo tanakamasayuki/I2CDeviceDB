@@ -1,0 +1,9 @@
+key: m5stack-u135
+name: Unit Encoder
+vendor: m5stack
+sku: U135
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/encoder
+components:
+  - chip: stm32f030
+    addr: "0x40"

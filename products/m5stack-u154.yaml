@@ -1,0 +1,9 @@
+key: m5stack-u154
+name: Unit 8Angle
+vendor: m5stack
+sku: U154
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/8Angle
+components:
+  - chip: stm32f030
+    addr: "0x43"

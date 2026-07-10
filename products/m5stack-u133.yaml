@@ -1,0 +1,9 @@
+key: m5stack-u133
+name: Unit KMeter
+vendor: m5stack
+sku: U133
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/kmeter
+components:
+  - chip: esp32-c3
+    addr: "0x66"

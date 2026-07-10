@@ -1,0 +1,9 @@
+key: m5stack-u127
+name: Unit Gesture
+vendor: m5stack
+sku: U127
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/gesture
+components:
+  - chip: paj7620u2
+    addr: "0x73"

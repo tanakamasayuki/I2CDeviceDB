@@ -1,0 +1,9 @@
+key: m5stack-u150
+name: Unit NCIR2
+vendor: m5stack
+sku: U150
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/NCIR2
+components:
+  - chip: mlx90614
+    addr: "0x5a"

@@ -1,0 +1,9 @@
+key: m5stack-u149
+name: Unit Thermal2
+vendor: m5stack
+sku: U149
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/Thermal2
+components:
+  - chip: mlx90640
+    addr: "0x33"
