@@ -23,6 +23,13 @@ static const uint32_t kBusHz = (uint32_t)strtoul(BUS_HZ, nullptr, 10);
 static const uint8_t kAddress = 0x70;
 #define MARKER Serial1
 
+static void syncMarker()
+{
+  // Marker writes are buffered; complete them before the following I2C action
+  // so the logic-analyzer timestamp can safely annotate that action.
+  MARKER.flush();
+}
+
 static void emitReady()
 {
   Serial.printf("READY target=qmp6988 addr=0x%02X sda=%d scl=%d hz=%lu\n",
@@ -71,6 +78,7 @@ static bool runResetIdentityDefaults()
 {
   MARKER.println("CASE_BEGIN Reset");
   MARKER.println("INPUT {\"register\":\"0xE0\",\"value\":\"0xE6\"}");
+  syncMarker();
   const uint8_t resetRc = writeRegister(0xE0, 0xE6);
   delay(10);
   uint8_t id = 0;
@@ -88,6 +96,7 @@ static bool runResetIdentityDefaults()
   Serial.println("\"}");
   MARKER.println("RESULT {\"identity\":\"captured\"}");
   MARKER.println("CASE_END Reset");
+  syncMarker();
   return resetRc == 0 && idOk && id == 0x5C && defaultsOk;
 }
 
@@ -95,6 +104,7 @@ static bool runCalibration()
 {
   MARKER.println("CASE_BEGIN Default Read");
   MARKER.println("PHASE calibration");
+  syncMarker();
   uint8_t calibration[25] = {0};
   const size_t n = readRegisters(0xA0, calibration, sizeof(calibration));
   Serial.printf("EVENT {\"type\":\"calibration\",\"start\":\"0xA0\","
@@ -103,6 +113,7 @@ static bool runCalibration()
   Serial.println("\",\"variability\":\"per_specimen\"}");
   MARKER.println("RESULT {\"calibration\":\"captured\"}");
   MARKER.println("CASE_END Default Read");
+  syncMarker();
   return n == sizeof(calibration);
 }
 
@@ -139,9 +150,11 @@ static bool runForcedMeasurement()
   // temperature x1 (001), pressure x1 (001), forced mode (01)
   const uint8_t control = 0x25;
   MARKER.println("INPUT {\"ctrl_meas\":\"0x25\"}");
+  syncMarker();
   if (writeRegister(0xF4, control) != 0)
   {
     MARKER.println("CASE_END Single Measurement");
+    syncMarker();
     return false;
   }
   uint32_t elapsed = 0;
@@ -161,6 +174,7 @@ static bool runForcedMeasurement()
   Serial.printf("\",\"length\":%u}\n", (unsigned)n);
   MARKER.println("RESULT {\"measurement\":\"captured\"}");
   MARKER.println("CASE_END Single Measurement");
+  syncMarker();
   // Forced mode returns to the sleep state internally, but this specimen keeps
   // the written mode bits in CTRL_MEAS. Preserve that distinction as data.
   return ready && n == sizeof(raw) && ctrlOk;
@@ -173,9 +187,11 @@ static bool runNormalMeasurement()
   // Default 1ms standby; temperature x1, pressure x1, normal mode.
   const uint8_t control = 0x27;
   MARKER.println("INPUT {\"ctrl_meas\":\"0x27\",\"samples\":10}");
+  syncMarker();
   if (writeRegister(0xF4, control) != 0)
   {
     MARKER.println("CASE_END Continuous Measurement");
+    syncMarker();
     return false;
   }
   bool ok = true;
@@ -194,16 +210,19 @@ static bool runNormalMeasurement()
   ok = writeRegister(0xF4, 0x24) == 0 && ok;
   MARKER.println("RESULT {\"samples\":10,\"final_mode\":\"sleep\"}");
   MARKER.println("CASE_END Continuous Measurement");
+  syncMarker();
   return ok;
 }
 
 static void runCharacterization()
 {
   MARKER.println("CASE_BEGIN Device Detection");
+  syncMarker();
   const bool present = probeAddress();
   Serial.printf("EVENT {\"type\":\"presence\",\"address\":\"0x70\",\"ack\":%s}\n",
                 present ? "true" : "false");
   MARKER.println("CASE_END Device Detection");
+  syncMarker();
   if (!present)
   {
     Serial.println("ALL_DONE target=qmp6988 ok=0");

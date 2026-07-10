@@ -94,7 +94,7 @@ probe は次の二系統とする。target は基本 chip で、**product は pr
 - **命名 = `<chip>__<library>`**（chip 先頭でチップごとに並ぶ）。M5Unit-ENV のようにセンサ別クラスを持つライブラリも、BMP280 用 / DHT12 用に分割し当該チップを含む全製品で再利用（product は名前に出ない）。
 - **例外**: チップ単位に割れず 1 呼び出しでユニット全体を叩く結合 API のライブラリだけ `<unit>__<library>`。
 - アドレス（0x76/0x77 等）は実行時パラメータ（product の component から渡す）。同じチップが別アドレスでも probe は分けない。
-- 1 回の書き込み＝1 回の sigrok 連続キャプチャを基本とし、`CASE_BEGIN <operation> / PHASE ... / CASE_END <operation>` で operation を区切る（速度・条件で分ける場合は別テスト／別キャプチャにしてよい）。
+- 1 回の書き込み＝1 回の sigrok 連続キャプチャを基本とし、`CASE_BEGIN <operation> / PHASE ... / CASE_END <operation>` で operation を区切る（速度・条件で分ける場合は別テスト／別キャプチャにしてよい）。marker はUART送信完了を待ってから対応する I2C 操作を開始し、marker timestamp が操作開始より後にならないようにする。
 - 数は増えても**共通テンプレート**（マーカー出力・速度設定・操作列）に沿わせ、差分はライブラリ固有の呼び出しだけにする。
 
 library probe は API 引数とライブラリの戻り値も構造化 event として記録する。バス通信だけでは、同じ byte 列がどの設定値・物理量・エラーに対応するか判断できないためである。
@@ -241,7 +241,7 @@ CASE_END Initialization
 1. sigrok の生キャプチャ候補を staging に保存（Level1 raw `.sr`）。validate 通過後に永続ストアへ移す。
 2. `sigrok-cli -P uart -P i2c --protocol-decoder-jsontrace` で decode（i2c と uart が**共通タイムベース**の Google Trace 形式で出る。この共通軸が Level4 相関の要）。**jsontrace は中間生成物で保存しない**（`.sr` から毎回作り直せる。bit 単位で冗長）。
 3. `tools/` のデコーダが jsontrace を圧縮: I2C の bit/byte イベント → transaction 列（各行 address / rw / data / ack、Level2）、UART の 1 文字 → 行テキスト。
-4. UART マーカー行（`CASE_*` / `PHASE`）を timestamp で突き合わせ、各 transaction に operation / phase を付与（Level4）→ compact な `decoded.jsonl`（**永続**、数 KB）。
+4. UART マーカー行（`CASE_*` / `PHASE`）を timestamp で突き合わせ、各 transaction に operation / phase を付与（Level4）→ compact な `<probe>.decoded.jsonl`（**永続**、数 KB）。
 5. scenario / API 入力、MCU 結果、匿名 specimen、product、実験環境、fqbn / platform・probe / library version を observation に保存する。取得日時は既定で保存しない。
 6. decoded 内容のハッシュで capture を命名し（[DATA_MODEL.ja.md](DATA_MODEL.ja.md)）、validate 通過分を `captures/` へ。observation から参照する。同一内容は同名で自然に畳まれる。
 

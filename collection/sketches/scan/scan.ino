@@ -34,6 +34,13 @@ static const uint32_t kBusHz = (uint32_t)strtoul(BUS_HZ, nullptr, 10);
 //           CASE_BEGIN/CASE_END land on the captured timeline for Level4.
 #define MARKER Serial1
 
+static void syncMarker()
+{
+  // Serial1 writes are buffered. Emit the operation boundary before I2C starts
+  // so its captured timestamp is a valid lower bound for the bus transaction.
+  MARKER.flush();
+}
+
 static void emitReady()
 {
   Serial.print("READY sda=");
@@ -47,6 +54,7 @@ static void emitReady()
 static void runSweep()
 {
   MARKER.println("CASE_BEGIN Address Sweep");
+  syncMarker();
   int found = 0;
   for (uint8_t addr = 0x00; addr <= 0x7F; addr++)
   {
@@ -61,6 +69,7 @@ static void runSweep()
     }
   }
   MARKER.println("CASE_END Address Sweep");
+  syncMarker();
   Serial.printf("ALL_DONE found=%d\n", found);
 }
 

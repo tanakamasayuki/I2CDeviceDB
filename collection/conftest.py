@@ -116,6 +116,11 @@ def _compose_channels(signals: list[str]) -> str:
     return ",".join(f"{chmap[s]}={s}" for s in signals)
 
 
+def decoded_artifact_path(capture: Path) -> Path:
+    """Return the human-readable decoded sibling for a raw ``.sr`` capture."""
+    return capture.with_name(f"{capture.stem}.decoded.jsonl")
+
+
 class SigrokCapture:
     def __init__(self, proc: subprocess.Popen, path: Path, log_fh, log_path: Path,
                  stdin_fd: int):
@@ -164,7 +169,7 @@ class SigrokCapture:
     def decode(self, out: Path | None = None) -> Path:
         """Compact decode to JSONL (Level2 + Level4) via tools/decode.
 
-        Uniform across probes: every capture produces a decoded.jsonl here.
+        Uniform across probes: every capture produces a ``.decoded.jsonl`` here.
         Whether it is persisted into captures/ is a separate policy (scan is
         not persisted); this only writes to the transient _staging/.
         """
@@ -174,7 +179,7 @@ class SigrokCapture:
         txns = decoder.parse_transactions(events)
         decoder.annotate(txns, decoder.parse_markers(events))
         records = decoder.to_records(txns)
-        out = out or self.path.with_suffix(".jsonl")
+        out = out or decoded_artifact_path(self.path)
         out.write_text(
             "".join(json.dumps(r, separators=(",", ":")) + "\n" for r in records),
             encoding="utf-8",

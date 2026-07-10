@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from conftest import derive_probe_keys, parse_probe_events
+from conftest import decoded_artifact_path, derive_probe_keys, parse_probe_events
 
 REPO_ROOT = Path(__file__).parents[2]
 
@@ -37,6 +37,12 @@ def test_parse_probe_events_rejects_invalid_json():
 def test_parse_probe_events_requires_type():
     with pytest.raises(ValueError, match="with type"):
         parse_probe_events(b'event ignored\nEVENT {"value":1}\n')
+
+
+def test_decoded_artifact_name_describes_its_role():
+    assert decoded_artifact_path(Path("_staging/sht30__characterize.sr")) == Path(
+        "_staging/sht30__characterize.decoded.jsonl"
+    )
 
 
 def test_marker_parser_keeps_input_out_of_case_name():

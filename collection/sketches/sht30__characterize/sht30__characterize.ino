@@ -25,6 +25,13 @@ static const uint32_t kBusHz = (uint32_t)strtoul(BUS_HZ, nullptr, 10);
 static const uint8_t kAddress = 0x44;
 #define MARKER Serial1
 
+static void syncMarker()
+{
+  // Marker writes are buffered; complete them before the following I2C action
+  // so the logic-analyzer timestamp can safely annotate that action.
+  MARKER.flush();
+}
+
 static void emitReady()
 {
   Serial.printf("READY target=sht30 addr=0x%02X sda=%d scl=%d hz=%lu\n",
@@ -103,6 +110,7 @@ static bool runResetAndStatus()
 {
   MARKER.println("CASE_BEGIN Reset");
   MARKER.println("INPUT {\"command\":\"0x30A2\"}");
+  syncMarker();
   const uint8_t resetRc = writeCommand(0x30A2);
   delay(2);
   const uint8_t statusRc = writeCommand(0xF32D);
@@ -118,6 +126,7 @@ static bool runResetAndStatus()
   writeCommand(0x3041); // clear status
   MARKER.println("RESULT {\"status\":\"captured\"}");
   MARKER.println("CASE_END Reset");
+  syncMarker();
   return resetRc == 0 && statusRc == 0 && n == 3 && crcOk;
 }
 
@@ -127,9 +136,11 @@ static bool runPollingMeasurement(const MeasurementCommand &m)
   MARKER.printf("PHASE polling-%s\n", m.repeatability);
   MARKER.printf("INPUT {\"command\":\"0x%04X\",\"clock_stretch\":false}\n",
                 m.pollingCommand);
+  syncMarker();
   if (writeCommand(m.pollingCommand) != 0)
   {
     MARKER.println("CASE_END Single Measurement");
+    syncMarker();
     return false;
   }
 
@@ -150,6 +161,7 @@ static bool runPollingMeasurement(const MeasurementCommand &m)
   emitFrame("polling", m.repeatability, data, n, elapsed);
   MARKER.println("RESULT {\"measurement\":\"captured\"}");
   MARKER.println("CASE_END Single Measurement");
+  syncMarker();
   return n == 6 && crc8(data, 2) == data[2] && crc8(data + 3, 2) == data[5];
 }
 
@@ -159,9 +171,11 @@ static bool runStretchingMeasurement(const MeasurementCommand &m)
   MARKER.printf("PHASE stretching-%s\n", m.repeatability);
   MARKER.printf("INPUT {\"command\":\"0x%04X\",\"clock_stretch\":true}\n",
                 m.stretchingCommand);
+  syncMarker();
   if (writeCommand(m.stretchingCommand) != 0)
   {
     MARKER.println("CASE_END Single Measurement");
+    syncMarker();
     return false;
   }
   delay(1); // datasheet minimum SCL-free interval before the read
@@ -189,16 +203,19 @@ static bool runStretchingMeasurement(const MeasurementCommand &m)
   emitFrame(mode, m.repeatability, data, n, finalElapsed);
   MARKER.println("RESULT {\"measurement\":\"captured\"}");
   MARKER.println("CASE_END Single Measurement");
+  syncMarker();
   return n == 6 && crc8(data, 2) == data[2] && crc8(data + 3, 2) == data[5];
 }
 
 static void runCharacterization()
 {
   MARKER.println("CASE_BEGIN Device Detection");
+  syncMarker();
   const bool present = probeAddress();
   Serial.printf("EVENT {\"type\":\"presence\",\"address\":\"0x44\",\"ack\":%s}\n",
                 present ? "true" : "false");
   MARKER.println("CASE_END Device Detection");
+  syncMarker();
   if (!present)
   {
     Serial.println("ALL_DONE target=sht30 ok=0");

@@ -49,8 +49,8 @@ uv run --env-file .env pytest sketches/qmp6988__characterize
 uv run pytest -q unit_tests
 ```
 
-正常終了後、`_staging/` に probe ごとの `.sr`、`.jsonl`、
-`<probe>.observation.json` が残る。observation JSON は schema 検討中の候補であり、
+正常終了後、`_staging/` に probe ごとの `<probe>.sr`（raw）、
+`<probe>.decoded.jsonl`、`<probe>.observation.json` が残る。observation JSON は schema 検討中の候補であり、
 レビューせず `observations/` へコピーしない。
 
 ## 到着前のコンパイル確認
