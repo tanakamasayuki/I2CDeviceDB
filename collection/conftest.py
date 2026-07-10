@@ -150,7 +150,7 @@ class SigrokCapture:
         """
         out = out or self.path.with_suffix(".jsontrace.json")
         decoders = [
-            "-P", "uart:rx=UART_TX:baudrate=115200:format=ascii",
+            "-P", "uart:rx=UART_TX:baudrate=115200:format=hex",
             "-P", "i2c:scl=SCL:sda=SDA",
         ]
         cmd = [

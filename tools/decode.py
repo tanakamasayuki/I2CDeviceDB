@@ -33,7 +33,9 @@ from pathlib import Path
 
 # sigrok decoder invocation (same as the collection harness).
 DECODERS = [
-    "-P", "uart:rx=UART_TX:baudrate=115200:format=ascii",
+    # Keep UART as byte values. libsigrokdecode's ascii jsontrace output does
+    # not JSON-escape every printable character (notably a double quote).
+    "-P", "uart:rx=UART_TX:baudrate=115200:format=hex",
     "-P", "i2c:scl=SCL:sda=SDA",
 ]
 
@@ -53,12 +55,11 @@ def sigrok_cli() -> str:
 
 
 def parse_jsontrace(raw: str) -> list[dict]:
-    """Parse sigrok JSON Trace, repairing its unescaped UART quote output.
+    """Parse sigrok JSON Trace, repairing legacy ascii UART quote output.
 
-    libsigrokdecode's jsontrace formatter does not escape a decoded double-quote
-    UART byte in a ``name`` value, producing invalid JSON. Preserve it as a quote;
-    the rest of the trace remains unchanged.  This is exercised by JSON-heavy
-    marker lines emitted by the characterization probes.
+    New captures use UART ``format=hex`` and do not need this repair. Keep it so
+    old, transient ``*.jsontrace.json`` files made with ``format=ascii`` remain
+    readable.
     """
     raw = re.sub(
         r'("name"\s*:\s*)"""(?=\s*[,}])',
@@ -142,21 +143,47 @@ def parse_transactions(events: list[dict]) -> list[dict]:
 # --------------------------------------------------------------------------- #
 # UART markers (Level4)
 # --------------------------------------------------------------------------- #
+UART_HEX_RE = re.compile(r"^[0-9A-Fa-f]{2}$")
+
+
 def parse_markers(events: list[dict]) -> list[dict]:
     """Reconstruct the marker stream and locate CASE_BEGIN/CASE_END/PHASE.
 
-    The ascii UART decoder drops control chars (no newline events), so lines run
-    together (``...SweepCASE_END...``). We rebuild the printable char stream with
-    per-char timestamps and split on the controlled marker keywords, not newlines.
+    Captures use UART hex annotations, so marker content is reconstructed from
+    the observed byte stream rather than from sigrok's JSON string rendering.
+    Marker firmware emits printable ASCII. Control bytes are separators and are
+    dropped; bytes outside ASCII are represented as U+FFFD and cannot
+    accidentally form a marker. Legacy ascii annotations remain accepted so
+    previously generated jsontrace files can still be decoded.
+
+    The UART decoder drops control chars (no newline events), so lines run
+    together (``...SweepCASE_END...``). Split on controlled marker keywords,
+    not newlines.
     """
-    chars = sorted(
+    annotations = sorted(
         (e for e in events
          if e.get("pid") == "uart-1" and e.get("tid") == "RX" and e.get("ph") == "B"
-         and isinstance(e.get("name"), str) and len(e["name"]) == 1),
+         and isinstance(e.get("name"), str)),
         key=lambda e: e["ts"],
     )
-    text = "".join(e["name"] for e in chars)
-    ts_at = [e["ts"] for e in chars]
+    chars: list[str] = []
+    ts_at: list[float] = []
+    for event in annotations:
+        name = event["name"]
+        if UART_HEX_RE.fullmatch(name):
+            byte = int(name, 16)
+            if byte < 0x20 or byte == 0x7F:
+                continue
+            chars.append(chr(byte) if byte < 0x80 else "\ufffd")
+        elif len(name) == 1:  # compatibility with old format=ascii jsontrace
+            if ord(name) < 0x20 or ord(name) == 0x7F:
+                continue
+            chars.append(name)
+        else:
+            continue
+        ts_at.append(event["ts"])
+
+    text = "".join(chars)
 
     markers: list[dict] = []
     for m in MARKER_RE.finditer(text):

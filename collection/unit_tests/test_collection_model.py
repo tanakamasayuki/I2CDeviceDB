@@ -64,6 +64,27 @@ def test_marker_parser_keeps_input_out_of_case_name():
     ]
 
 
+def test_marker_parser_reconstructs_hex_uart_bytes():
+    from conftest import _load_decoder
+
+    decoder = _load_decoder()
+    text = "CASE_BEGIN Device Detection\nCASE_END Device Detection\n"
+    events = [
+        {
+            "pid": "uart-1",
+            "tid": "RX",
+            "ph": "B",
+            "name": f"{byte:02X}",
+            "ts": i,
+        }
+        for i, byte in enumerate(text.encode("ascii"))
+    ]
+    assert [(m["kind"], m["arg"]) for m in decoder.parse_markers(events)] == [
+        ("CASE_BEGIN", "Device Detection"),
+        ("CASE_END", "Device Detection"),
+    ]
+
+
 def test_jsontrace_parser_repairs_unescaped_uart_quote():
     from conftest import _load_decoder
 
