@@ -103,6 +103,8 @@ library probe は API 引数とライブラリの戻り値も構造化 event と
 
 既存ライブラリを include せず、共通 runner が安全性を宣言した scenario を実行する。scenario は `scenarios/common/` または `scenarios/<chip>/` の YAML を正本とし、次を段階的に収集する。
 
+基本カタログへの登録だけでは characterization を自動実行しない。対象 chip を深掘りするときに datasheet と既存 seed facts から安全な scenario / profile 骨格を用意し、観測結果で更新する。profile が未作成であることと、デバイスが未対応・機能なしであることを混同しない。
+
 1. presence / identity / address 条件
 2. power-on / soft-reset 後の既定状態
 3. 安全と確認済みの register / command read

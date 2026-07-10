@@ -6,15 +6,18 @@
 
 | エンティティ | 例 | 役割 | 再利用性 |
 |--------------|-----|------|----------|
-| **chip** | `bmp280`, `dht12` | I2C チップ単位のカタログ + 生成可能な behavior profile。**生成器が読む正本・capture の既定 target** | 高（多製品で共通） |
+| **chip catalog** | `chips/bmp280.yaml` | 識別・検索・product 連結のための基本情報。profile がなくても登録・公開できる | 高（多製品で共通） |
+| **chip profile** | `profiles/bmp280.yaml` | transport とデバイスの行動仕様。**アクセスライブラリ / エミュレータ生成器が読む正本** | 高（多製品で共通） |
 | **product** | `m5stack-u001` | 部品表: どの chip がどのアドレスに載るか + コネクタ・ベンダー・URL。**capture の identity には入らない**（provenance と集約ビュー用） | 中 |
 | **library** | `m5stack-m5unit-env` | 収集に使った実装。repo・対応 chip（実行版は observation provenance で pin） | — |
 | **scenario** | `bmp280/forced-measurement` | characterization で実行する制御された入力と手順。可能な限り共通 DSL で宣言 | 高 |
 | **observation** | ある実験 run | scenario / library probe の入力、結果、環境、specimen、capture 参照を束ねる実験記録 | — |
 | **capture** | ある observation のバス記録 | raw 波形と decoded transaction。profile の一次証拠・互換性テストベクター | — |
 
-3 層の役割を混ぜないことをデータモデルの中心原則とする。
+catalog / profile / observation / capture の役割を混ぜないことをデータモデルの中心原則とする。
 
+- **chip catalog は何者か**を表し、広く先行登録できる。
+- **chip profile はどう通信し、どう振る舞うか**を表し、後から段階的に深くする。
 - **capture は起きた通信**であり、観測していない振る舞いを主張しない。
 - **observation は何を与え、何が起きたか**を再現可能に記録する。成功を期待値として書き換えず、差異も残す。
 - **chip profile は複数の根拠をレビューして一般化した規則**であり、アクセスライブラリ / エミュレータ生成器の入力となる。
@@ -30,6 +33,7 @@
 
 ```text
 product ──references──> chip     （どの chip がどのアドレスに載るか = 部品表）
+profile ──describes───> chip     （同じ key の詳細行動仕様。0 または 1）
 scenario ──targets────> chip      （何を確認する実験か）
 observation ─target───> chip      （制御された入力・結果・provenance）
 observation ─uses─────> scenario  （characterization の場合）
@@ -40,6 +44,8 @@ library  ──supports──> chip      （そのライブラリが叩けるチ
 chip profile ─evidence> observation / datasheet（規則ごとの根拠）
 ```
 
+- `chips/<key>.yaml` は必須、`profiles/<key>.yaml` は任意。同じ key で結合し、profile だけが孤立することは許さない。
+- profile が存在しない場合は `unknown / not-characterized` であり、その chip に機能が存在しないことを意味しない。
 - observation は `kind: characterization | library` を持つ。library は library observation でのみ必須で、characterization の identity を特定ライブラリに依存させない。
 - capture の論理キーは `target × probe × bus_speed × condition` と decoded content hash。`probe` は scenario または library(+version)。operation は capture 内の slice であり、product とともに identity には入らない。
 - product は再現（接続する製品）と集約ビュー（「この製品のチップのデータ」）のために参照されるだけ。
@@ -96,10 +102,25 @@ operation / phase = UART マーカーで capture 内を区切る slice
 ## マスタ形式の原則
 
 - **データファイルにコメント（`#`）は書かない。** フィールドの意味・スキーマの説明はこのドキュメントに集約する。ファイル固有の内容は `notes:` フィールド（データ）に入れる。
-- **1 エンティティ = 1 YAML ファイル**（手編集用マスタ）。profile（Level5）も同じ YAML に構造化して畳み込む（`chip.yaml` + `profile.md` の二重管理はしない）。
-- 命名はフラット寄りにして探しやすくする（`chips/bmp280.yaml`）。
-- **YAML がマスタ、JSON はビルド生成**。サイトと downstream は生成された JSON を fetch する。手で書くのは YAML、機械が読むのは JSON、で二重管理を避ける。
+- 一般のエンティティは 1 YAML とするが、**chip だけは基本 catalog と詳細 profile の 2 ソース**を許可する。これは同じ事実の二重管理ではなく、安定度と作業速度が異なる責務の分離である。
+- catalog と profile は同じ key / ファイル stem で対応させる（`chips/bmp280.yaml` + `profiles/bmp280.yaml`）。profile に name、manufacturer、addresses、datasheets 等を再掲しない。
+- **YAML が編集用マスタ、統合 JSON はビルド生成**。サイトと downstream は `chip catalog + profile` を結合した chip 単位の JSON を fetch する。生成 JSON は YAML へ逆同期しない。
+- catalog schema と profile schema は別々に versioning できるようにする。ファイルには schema version を持たせ、profile の進化で基本カタログを一斉変更しなくて済むようにする。
 - 生成物（JSON / HTML）は main に置かず、サイトは gh-pages ブランチへ公開する（[SITE.ja.md](SITE.ja.md)）。
+
+### 権威と重複禁止
+
+| 情報 | 権威 |
+|------|------|
+| key、型番、メーカー、検索タグ | `chips/<key>.yaml` |
+| 取りうる I2C address と選択条件 | `chips/<key>.yaml` |
+| datasheet / reference の一覧と ID | `chips/<key>.yaml` |
+| transport、register / command / frame | `profiles/<key>.yaml` |
+| field、operation、state、副作用、timing、conversion | `profiles/<key>.yaml` |
+| 実験入力・結果・環境 | `observations/` |
+| 実際のバス通信 | `captures/` |
+
+ビルド時に、profile の対応 chip、key / stem、一意性、evidence / reference、scenario / observation 参照を検証する。重複フィールドを「片方が優先」で解決せず、schema error とする。
 
 ## ディレクトリと最小スキーマ
 
@@ -107,8 +128,43 @@ operation / phase = UART マーカーで capture 内を区切る slice
 
 ```text
 chips/<chip>.yaml   # key, name（= 型番 part number）, manufacturer, tags, addresses: [{addr, note?}],
-                    # datasheets: [{source, vendor?, url, revision?, date?}],
-                    # transport, registers / commands, operations, states, timing, conversions, notes
+                    # datasheets: [{id?, source, vendor?, url, revision?, date?}], notes
+```
+
+基本カタログは識別・検索・product との連結に必要な安定情報に限定する。詳細 profile がなくても chip YAML 単独で schema valid とし、一覧・product view・収録候補管理に利用できる。
+
+```yaml
+schema_version: 1
+key: bmp280
+name: BMP280
+manufacturer: Bosch Sensortec
+tags: [pressure, temperature]
+addresses: []
+datasheets: []
+```
+
+### profiles/
+
+```text
+profiles/<chip>.yaml   # schema_version, chip, coverage, transport, registers / commands / frames,
+                       # operations, states, timing, conversions
+```
+
+profile は任意だが、存在する場合は対応する `chips/<chip>.yaml` を必須とする。基本情報を繰り返さず `chip: <key>` だけで参照する。
+
+```yaml
+schema_version: 1
+chip: bmp280
+coverage:
+  status: partial
+transport: {}
+registers: []
+commands: []
+frames: []
+operations: []
+states: []
+timing: []
+conversions: []
 ```
 
 ### chip profile の深さ
@@ -136,6 +192,29 @@ evidence:
 ```
 
 `source` は `datasheet` / `observed` / `inferred`。`inferred` は生成器が既定で採用してよい保証事項として扱わず、`tentative` / `confirmed` / `variant` 等の confidence と併用する。profile から observation / capture への参照を持ち、逆引きリストはビルド時に導出する。
+
+### 深掘りの段階
+
+profile は一度に完成させず、次の順で育てる。
+
+1. **cataloged** — `chips/<key>.yaml` のみ。製品との連結と資料の所在が分かる。
+2. **protocol-known** — transport と register / command / frame の骨格がある。
+3. **characterized** — field、副作用、state、timing、conversion が observation で裏付けられている。
+4. **generator-ready** — 対象機能の coverage が明示され、schema / evidence / conformance test を通る。
+
+`coverage.status` はファイル全体の目安にすぎない。機能ごとの known / unknown / unsupported と evidence を併記し、`generator-ready` でも未対象機能を隠さない。
+
+### 既存 chip YAML の移行
+
+現在の `chips/*.yaml` にある `registers` は、基本カタログ作成時に得られたデコード凡例 / seed facts と位置づける。移行期間中は読み込みを許容するが、新しい最終配置は `profiles/<key>.yaml` とする。
+
+- profile 着手時に seed facts を検証し、`registers` または `commands` として profile へ**移動**する。コピーして両方に残さない。
+- `desc` / `notes` に埋まった access、ID 値、reset opcode、byte order、CRC、address 変更、副作用等は構造化して profile へ移す。
+- 移行前の `registers` があることを「profile 作成済み」「生成可能」とは判定しない。
+- 現在の schema version 未記載ファイルは legacy catalog（暗黙の version 0）として扱う。catalog / profile schema 確定時に明示 version へ一括移行する。
+- 全 catalog の一括移行を profile 開始の条件にしない。深掘り対象 chip から順に移行する。
+
+### chip catalog の補足フィールド
 
 `tags` は検索用の配列（例 `[temperature, humidity]`）。「何を測るか」はチップ固有の性質なのでここに正規化して持つ（product では持たない）。
 

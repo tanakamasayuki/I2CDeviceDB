@@ -19,9 +19,11 @@ GitHub Pages は `/` か `/docs` か別ブランチのみ公開可能。**生成
 ## ビルドの流れ（想定）
 
 ```text
-main の YAML マスタ + observations/ + captures/
+main の chips/ + profiles/ + その他 YAML マスタ + observations/ + captures/
     ↓ tools/ のサイトジェネレータ（GitHub Actions）
-HTML（静的） + JSON（データ） + captures コピー
+catalog + profile を key で統合
+    ↓
+HTML（静的） + chip 単位 JSON（データ） + captures コピー
     ↓
 gh-pages ブランチ → GitHub Pages
 ```
@@ -38,12 +40,14 @@ gh-pages ブランチ → GitHub Pages
 
 | 階層 | 中身 | サイズ | アクセス | 検索/フィルタ |
 |------|------|--------|----------|---------------|
-| カタログ | chips / products / libraries + profile + observation 索引 | 小〜中 | 一覧・横断検索 | 必要 |
+| カタログ | chips / products / libraries + profile coverage + observation 索引 | 小〜中 | 一覧・横断検索 | 必要 |
 | キャプチャ詳細 | decoded トランザクション列（.jsonl） | 大（1 キャプチャごと） | 1 件ずつ開く | 基本不要 |
 
 ### カタログ → 1 本の `index.json` + JS メモリ内フィルタ
 
 - ビルドで YAML → `index.json` を生成。ロード 1 回で全検索 / フィルタ / ソートが即応（`Array.filter` で十分、検索ライブラリ不要）。
+- `chips/<key>.yaml` だけの chip も index に掲載し、profile の有無と `coverage.status` を表示する。profile がない chip を非対応・機能なしとして除外しない。
+- 詳細ページ / downstream 用には `chips/<key>.yaml` と任意の `profiles/<key>.yaml` を結合した chip JSON を生成する。重複フィールドや孤立 profile はビルドエラーにする。
 - SQLite は不要。
 
 ### キャプチャ詳細 → 1 キャプチャ 1 JSON、lazy fetch
