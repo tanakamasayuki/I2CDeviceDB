@@ -172,7 +172,7 @@ CASE_END readTemperature
 
 - **Level1 生キャプチャ** — `.sr` 等。最も信頼できるデータ。
 - **Level2 デコード済み通信** — JSON / JSONL / CSV。アドレス・R/W・データ・ACK/NACK・operation / phase。絶対 timestamp は内容 identity に使わず、必要な相対時間を timing feature として保存。
-- **Level3 observation / provenance** — scenario / API 入力、MCU 戻り値、外部刺激、匿名 specimen、product、取得日時、電源・bus・instrument、fqbn / platform・core / probe・library version。取得日時や specimen は capture identity に使わない。
+- **Level3 observation / provenance** — scenario / API 入力、MCU 戻り値、外部刺激、匿名 specimen、product、電源・bus・instrument、fqbn / platform・core / probe・library version。取得日時は既定で保存せず、specimen は capture identity に使わない。
 - **Level4 意味付け** — 初期化 / 設定 / 測定 / スリープ / リセット / ステータス取得 等（UART マーカー由来）。
 - **Level5 デバイスプロファイル** — transport、register / command、field、値の意味、operation、state、副作用、timing、conversion と evidence。アクセスライブラリ / エミュレータ生成器が読む正本。深さの指針は [DATA_MODEL.ja.md](DATA_MODEL.ja.md)。
 
@@ -182,7 +182,7 @@ CASE_END readTemperature
 
 - **再現環境**: `sketch.yaml` 由来の fqbn、platform / core version、probe / library version（arduino-cli が解決した実際の版）。
 - **収集パラメータ**: バス速度・収集条件（これらは identity にも含まれる）。
-- **実験 provenance**: 匿名 specimen ID、product、取得日時、電源、pull-up、配線、周囲条件、instrument と sample rate。関係する項目だけ必須化する。
+- **実験 provenance**: 匿名 specimen ID、product、電源、pull-up、配線、周囲条件、instrument と sample rate。収集ツールの解決済みversionは保存するが、取得日時は既定で保存しない。関係する項目だけ必須化する。
 - **制御された入出力**: scenario / API 引数、MCU 戻り値、外部刺激、基準計の値。
 - デバイス名・メーカー・センサ IC・I2C アドレスは chip / product / library の参照から導出する（重複保存しない）。
 

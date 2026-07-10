@@ -19,7 +19,6 @@ import signal
 import subprocess
 import sys
 import time
-from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -425,7 +424,6 @@ def observation_candidate(request: pytest.FixtureRequest):
             "provenance": {
                 "product": product,
                 "specimen_id": specimen,
-                "acquired_at": datetime.now(UTC).isoformat(),
                 "bus_speed_hz": bus_hz,
                 "sigrok_samplerate": rate,
                 "supply_voltage_v": os.getenv("TEST_SUPPLY_VOLTAGE_V") or None,

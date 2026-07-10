@@ -79,7 +79,7 @@
 
 ### 共通 provenance
 
-- [ ] product key、specimen ID、取得日時。
+- [ ] product key、specimen ID。
 - [ ] 電源電圧、pull-up、ケーブル、SDA / SCL / UART 配線。
 - [ ] MCU、fqbn、platform / core、probe firmware revision。
 - [ ] bus speed、condition、ロジアナ、sample rate。

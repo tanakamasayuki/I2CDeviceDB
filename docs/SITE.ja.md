@@ -92,4 +92,4 @@ profile ビューは **デバイス → transport / register / command / operati
 - グループ内が**一致**していれば **代表を 1 つだけ**表示（他は「N 件・同一」と畳む）。
 - **食い違う**ときだけ「ここが違う」を強調（compare 由来の差分。版差 / 速度・条件差 / 内容差）。差が出る所は自動フラグ＋必要なら手書き note。
 - 代表の選び方（例: 最新版・nominal・canonical）とグループ化キーは実装時に確定。
-- グループ内の差異軸（scenario / ライブラリ版・速度・条件・匿名 specimen・環境など）で切り替えて見られるようにする。取得日時・specimen は provenance として表示できるが、identity や代表選択の主軸にはしない。
+- グループ内の差異軸（scenario / ライブラリ版・速度・条件・匿名 specimen・環境など）で切り替えて見られるようにする。specimen は provenance として表示できるが、identity や代表選択の主軸にはしない。取得日時は既定で保存しない。

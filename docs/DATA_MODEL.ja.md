@@ -85,7 +85,7 @@ capture = target × probe × bus_speed × condition × content_hash
 operation / phase = UART マーカーで capture 内を区切る slice
 ```
 
-**capture は内容で識別する（コンテンツアドレス）。** identity = 論理キー `(target × probe × speed × condition)` ＋ **decoded 内容のハッシュ**。取得日時・specimen・product は identity に使わない。内容が同じキャプチャは同じ名前に畳め、内容が違えば意味ある variant として残る。一方、取得日時・匿名 `specimen_id`・product・実験環境は observation の provenance として保持し、個体差や再現条件を失わない。
+**capture は内容で識別する（コンテンツアドレス）。** identity = 論理キー `(target × probe × speed × condition)` ＋ **decoded 内容のハッシュ**。specimen・product は identity に使わない。内容が同じキャプチャは同じ名前に畳め、内容が違えば意味ある variant として残る。一方、匿名 `specimen_id`・product・実験環境・収集ツール世代は observation の provenance として保持し、個体差や再現条件を失わない。
 
 - ハッシュ対象は **decoded の意味内容**（addr/rw/data/ack と operation/phase）。raw はハード実機で毎回タイミングが違うのでハッシュ対象にしない → `nominal` の完全一致が畳める。
 - timing 系 condition（clock-stretch / overspeed / tight-timing）はタイミングが主目的なので、ハッシュ対象にタイミング特徴も含める。
@@ -289,7 +289,6 @@ captures: []
 provenance:
   specimen_id: specimen-001
   product: m5stack-u001
-  acquired_at: "2026-01-01T00:00:00Z"
   supply_voltage_v: 3.3
   ambient: {}
   bus: {}
@@ -298,8 +297,7 @@ provenance:
 ```
 
 - `specimen_id` はリポジトリ内だけで一貫する匿名 ID。capture identity には含めない。
-- `acquired_at` は追跡情報であり、ファイル名・同一性・代表選択には使わない。
-- provenance は主張の再現性に影響する情報を保存する。電源、pull-up、配線、温度、bus speed、MCU / core、probe / library version、ロジアナと sample rate 等を対象とし、関係しない項目を一律必須にはしない。
+- provenance は主張の再現性に影響する情報を保存する。電源、pull-up、配線、温度、bus speed、MCU / core、probe / library version、ロジアナと sample rate 等を対象とし、関係しない項目を一律必須にはしない。取得日時は既定で保存しない。
 - library observation は `kind: library` と `library` / version / 呼び出し入力 / 戻り値を持つ。characterization observation は `scenario` を持つ。
 - センサの物理量を検証する場合、外部刺激と基準計の値・精度を input / instruments に保存する。
 
@@ -317,7 +315,7 @@ captures/
 captures/raw/bmp280__m5stack-m5unit-env-1.0.0__400k__nominal__a1b2c3d4.sr
 ```
 
-capture は既定で **chip-scoped**（target = chip）。製品非依存なので、その chip を含むどの製品でも使い回す。capture 自体は内容アドレスとし、再現環境・取得日時・物理個体・product は参照元 observation に置く。ユニット結合 API の例外ライブラリのみ **unit-scoped**（key が unit）。正式なフィールド／ディレクトリ構成は schema 確定時に決める。
+capture は既定で **chip-scoped**（target = chip）。製品非依存なので、その chip を含むどの製品でも使い回す。capture 自体は内容アドレスとし、再現環境・物理個体・product は参照元 observation に置く。ユニット結合 API の例外ライブラリのみ **unit-scoped**（key が unit）。正式なフィールド／ディレクトリ構成は schema 確定時に決める。
 
 `captures/` に残すのは validate を通過した chip probe のバス記録である。**scan は MCU の presence マップを observation として保存するが、同時取得した LA データは capture として永続化しない**（presence の真実は MCU で、浮いたバスの LA decode はノイズ。[COLLECTION.ja.md](COLLECTION.ja.md)）。中間物（jsontrace）と収集中の作業ファイルは `collection/_staging/` に置き、次の hardware capture run 開始時にワイプする（unit test / `--collect-only` では保持する）。
 

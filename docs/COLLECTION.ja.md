@@ -201,9 +201,9 @@ library probe は 1 probe 1 ライブラリなので、競合は自分の probe 
 ## キャプチャの scope・収集・表示
 
 - **library / characterization probe は同一パイプライン**（flash → LA 取得 → decode → observation）。**差は scenario / library 入力と永続化方針**: scan（presence）は非 capture、chip probe（byte 列）は `captures/` へ永続。
-- **capture は既定 chip-scoped**（target = chip）。その chip を含むどの製品でも証拠・テストベクターとして再利用できる。product、匿名 specimen、取得日時、環境は capture identity に入れず、observation provenance に保持する。ユニット結合 API の例外ライブラリのみ unit-scoped。
+- **capture は既定 chip-scoped**（target = chip）。その chip を含むどの製品でも証拠・テストベクターとして再利用できる。product、匿名 specimen、環境は capture identity に入れず、observation provenance に保持する。取得日時は既定で保存しない。ユニット結合 API の例外ライブラリのみ unit-scoped。
 - **収集は無制限**。過去データがあっても再取得してよい。全部残す（差異もデータ）。
-- **絞るのは表示（display）側**。論理キー `(target × probe × operation × speed × condition)` でグループ化し、一致していれば**代表を 1 つだけ**見せ、食い違うときだけ「ここが違う」を強調する（[SITE.ja.md](SITE.ja.md)）。provenance は差異を説明する軸として参照できるが、代表選択を取得日時だけで決めない。
+- **絞るのは表示（display）側**。論理キー `(target × probe × operation × speed × condition)` でグループ化し、一致していれば**代表を 1 つだけ**見せ、食い違うときだけ「ここが違う」を強調する（[SITE.ja.md](SITE.ja.md)）。provenance は差異を説明する軸として参照できるが、代表選択の主軸にはしない。
 - 「この製品のこの chip は既存データでカバー済み」というカバレッジは、product × 選定基準 と実データの突き合わせで**導出**する。
 
 ## バス速度・収集条件のバリエーション
@@ -242,7 +242,7 @@ CASE_END Initialization
 2. `sigrok-cli -P uart -P i2c --protocol-decoder-jsontrace` で decode（i2c と uart が**共通タイムベース**の Google Trace 形式で出る。この共通軸が Level4 相関の要）。**jsontrace は中間生成物で保存しない**（`.sr` から毎回作り直せる。bit 単位で冗長）。
 3. `tools/` のデコーダが jsontrace を圧縮: I2C の bit/byte イベント → transaction 列（各行 address / rw / data / ack、Level2）、UART の 1 文字 → 行テキスト。
 4. UART マーカー行（`CASE_*` / `PHASE`）を timestamp で突き合わせ、各 transaction に operation / phase を付与（Level4）→ compact な `decoded.jsonl`（**永続**、数 KB）。
-5. scenario / API 入力、MCU 結果、匿名 specimen、product、取得日時、実験環境、fqbn / platform・probe / library version を observation に保存する。
+5. scenario / API 入力、MCU 結果、匿名 specimen、product、実験環境、fqbn / platform・probe / library version を observation に保存する。取得日時は既定で保存しない。
 6. decoded 内容のハッシュで capture を命名し（[DATA_MODEL.ja.md](DATA_MODEL.ja.md)）、validate 通過分を `captures/` へ。observation から参照する。同一内容は同名で自然に畳まれる。
 
 - decode はハーネスに統合済み（`cap.decode()` が `tools/decode.py` で `_staging/<name>.jsonl` を生成）。`_staging` は**次の hardware capture run 開始時にワイプ**する一時置き場（unit test / `--collect-only` では消さない）で、永続ストアは `captures/`。
