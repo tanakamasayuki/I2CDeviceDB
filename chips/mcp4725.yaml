@@ -1,0 +1,27 @@
+key: mcp4725
+name: MCP4725
+manufacturer: Microchip
+tags: [dac, analog-output]
+addresses:
+  - addr: "0x60"
+    note: A2/A1 factory-programmed, A0 pin; family spans 0x60-0x67
+datasheets:
+  - source: manufacturer
+    url: https://ww1.microchip.com/downloads/aemDocuments/documents/MSLD/ProductDocuments/DataSheets/MCP4725-Data-Sheet-20002039E.pdf
+    revision: "E"
+    date: "2022"
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MCP4725_en.pdf
+    revision: "C"
+    date: "2007-11"
+registers:
+  - { name: fast_write,           addr: "0x00", desc: "fast-mode write command (bits [7:5]=000): DAC register + power-down only" }
+  - { name: write_dac,            addr: "0x40", desc: "write DAC register command (bits [7:5]=010)" }
+  - { name: write_dac_and_eeprom, addr: "0x60", desc: "write DAC register + EEPROM command (bits [7:5]=011)" }
+notes: |
+  Command-based device, not classic addressable registers: the write mode is selected by the
+  C2/C1/C0 bits in the command byte [7:5] (values above). Fast-mode (0x00) updates only the DAC
+  register; 0x40 writes the DAC register; 0x60 also writes the on-board EEPROM that holds the
+  power-on default. A read returns settings, DAC register and EEPROM. Device code is fixed 1100;
+  A2/A1 factory-set, A0 via pin → 0x60-0x67. M5Stack Unit DAC uses 0x60 (12-bit, 0-3.3 V).

@@ -1,0 +1,26 @@
+key: mlx90640
+name: MLX90640
+manufacturer: Melexis
+tags: [temperature, thermal, infrared]
+addresses:
+  - addr: "0x33"
+    note: default; programmable
+datasheets:
+  - source: manufacturer
+    url: https://www.melexis.com/-/media/files/documents/datasheets/mlx90640-datasheet-melexis.pdf
+    revision: "12"
+    date: "2019-12"
+registers:
+  - { name: status_register,    addr: "0x8000", desc: "status; new-data flag, subpage, RAM overwrite enable" }
+  - { name: control_register_1, addr: "0x800D", desc: "refresh rate, ADC resolution, reading pattern, subpage mode" }
+  - { name: i2c_config,         addr: "0x800F", desc: "FM+ disable, I2C threshold, SDA current limit" }
+  - { name: ram,                addr: "0x0400", desc: "measurement RAM 0x0400..0x073F (768 pixels + 64 aux words)" }
+  - { name: eeprom,             addr: "0x2400", desc: "calibration/config EEPROM 0x2400..0x273F" }
+notes: |
+  16-bit memory/register addresses (not 8-bit): each access sends a 2-byte address then 2-byte
+  (16-bit word) data, MSByte first. Default slave address 0x33, programmable (avoid 0x00); 8-bit
+  wire form 0x66 write / 0x67 read. Factory calibration in EEPROM (0x2400..0x273F) is read once
+  after power-on to compute per-pixel temperatures. A frame is read as 834 words: 832 RAM words
+  plus control_register_1 (0x800D) and status (0x8000). 32x24 array, two subpages (chess or
+  interleaved), 0.5-64 Hz. Driven via the Melexis MLX90640 API. Used in Unit Thermal and Thermal2
+  at 0x33.

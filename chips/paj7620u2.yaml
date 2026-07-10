@@ -1,0 +1,27 @@
+key: paj7620u2
+name: PAJ7620U2
+manufacturer: PixArt Imaging
+tags: [gesture, proximity, optical]
+addresses:
+  - addr: "0x73"
+datasheets:
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/gesture/paj7620u2_datasheet.pdf
+  - source: reseller
+    url: https://files.seeedstudio.com/wiki/Grove_Gesture_V_1.0/res/PAJ7620U2_DS_v1.5_05012022_Confidential.pdf
+    revision: "1.5"
+registers:
+  - { name: bank_select,   addr: "0xEF", desc: "register bank select (0x00=Bank0, 0x01=Bank1)" }
+  - { name: part_id_low,   addr: "0x00", desc: "Bank0: part id low byte, reads 0x20" }
+  - { name: part_id_high,  addr: "0x01", desc: "Bank0: part id high byte, reads 0x76 (part id 0x7620)" }
+  - { name: suspend,       addr: "0x03", desc: "Bank0: suspend command" }
+  - { name: gesture_flag,  addr: "0x43", desc: "Bank0: gesture/PS interrupt flag byte 0" }
+  - { name: gesture_flag1, addr: "0x44", desc: "Bank0: gesture/PS interrupt flag byte 1" }
+notes: |
+  Fixed I2C address 0x73. Registers are banked: write 0x00/0x01 to bank-select 0xEF before
+  accessing bank-specific registers. Identity = 16-bit part id 0x7620 (Bank0 0x00=0x20, 0x01=0x76).
+  Requires loading a vendor initialization register array at power-up before gestures are reported.
+  PixArt publishes no public datasheet; the Seeed-hosted rev 1.5 copy is marked Confidential and
+  DRM-encrypted (a public rev 0.8 also exists). Register facts cross-checked against the Seeed
+  Grove and RevEng_PAJ7620 drivers. Used in M5Stack Unit Gesture.

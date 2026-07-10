@@ -1,0 +1,27 @@
+key: scd41
+name: SCD41
+manufacturer: Sensirion
+tags: [co2, temperature, humidity]
+addresses:
+  - addr: "0x62"
+datasheets:
+  - source: manufacturer
+    url: https://sensirion.com/media/documents/48C4B7FB/67FE0194/CD_DS_SCD4x_Datasheet_D1.pdf
+    revision: "1.7"
+    date: "2025-04"
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/co2/SCD41.pdf
+registers:
+  - { name: start_periodic_measurement, addr: "0x21B1", desc: "start periodic measurement (~5 s interval)" }
+  - { name: read_measurement,           addr: "0xEC05", desc: "read CO2 (ppm), temperature, humidity" }
+  - { name: stop_periodic_measurement,  addr: "0x3F86", desc: "stop periodic measurement" }
+  - { name: get_serial_number,          addr: "0x3682", desc: "read 48-bit serial number" }
+  - { name: perform_self_test,          addr: "0x3639", desc: "self-test (~10 s)" }
+  - { name: reinit,                     addr: "0x3646", desc: "reinitialize from EEPROM" }
+  - { name: measure_single_shot,        addr: "0x219D", desc: "single-shot CO2 + RH/T (SCD41 only)" }
+notes: |
+  Command-based protocol: 16-bit command codes MSB first; data words are 16-bit each followed by
+  a CRC-8 byte (poly 0x31, init 0xFF). One datasheet covers SCD40/SCD41/SCD43. SCD41 adds
+  single-shot operation (0x219D) and a 400-5000 ppm range vs SCD40's 400-2000 ppm. M5Stack Unit
+  CO2L uses the SCD41 at 0x62.

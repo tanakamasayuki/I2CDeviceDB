@@ -1,0 +1,30 @@
+key: sgp30
+name: SGP30
+manufacturer: Sensirion
+tags: [tvoc, eco2, gas, voc]
+addresses:
+  - addr: "0x58"
+datasheets:
+  - source: manufacturer
+    url: https://sensirion.com/media/documents/984E0DD5/61644B8B/Sensirion_Gas_Sensors_Datasheet_SGP30.pdf
+    revision: "1.0"
+    date: "2020-05"
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/Sensirion_Gas_Sensors_SGP30_Datasheet.pdf
+registers:
+  - { name: init_air_quality,    addr: "0x2003", desc: "start air quality measurement" }
+  - { name: measure_air_quality, addr: "0x2008", desc: "read eCO2 (ppm) + TVOC (ppb); call every 1 s" }
+  - { name: get_baseline,        addr: "0x2015", desc: "read IAQ baseline" }
+  - { name: set_baseline,        addr: "0x201E", desc: "write stored IAQ baseline" }
+  - { name: set_humidity,        addr: "0x2061", desc: "set absolute humidity for compensation" }
+  - { name: measure_test,        addr: "0x2032", desc: "on-chip self-test (returns 0xD400)" }
+  - { name: get_feature_set,     addr: "0x202F", desc: "read feature set version (0x0022)" }
+  - { name: measure_raw,         addr: "0x2050", desc: "read raw H2 + ethanol signals" }
+  - { name: get_serial_id,       addr: "0x3682", desc: "read 48-bit serial id" }
+  - { name: soft_reset,          addr: "0x0006", desc: "general-call reset (addr 0x00 + 0x06)" }
+notes: |
+  Command-based: 16-bit commands MSB first; each 2 data bytes followed by CRC-8 (poly 0x31,
+  init 0xFF). Outputs eCO2 (ppm) then TVOC (ppb). After iaq_init the first ~15 s returns fixed
+  defaults (400 ppm / 0 ppb); measure_air_quality must be called at 1 s intervals to maintain the
+  baseline algorithm. Fixed address 0x58. M5Stack Unit Mini TVOC/eCO2 uses it at 0x58.
