@@ -103,6 +103,114 @@ def test_jsontrace_parser_repairs_unescaped_uart_quote():
     assert decoder.parse_jsontrace(raw)[0]["name"] == '"'
 
 
+def test_clock_stretch_features_come_from_raw_scl_low_intervals():
+    from conftest import _load_timing
+
+    vcd = """$timescale 1 ns $end
+$scope module libsigrok $end
+$var wire 1 ! SCL $end
+$upscope $end
+$enddefinitions $end
+#0 1!
+#100000 0!
+#3100000 1!
+"""
+    timing = _load_timing()
+    assert timing.scl_low_intervals(vcd) == [
+        {"start_us": 100.0, "end_us": 3100.0, "duration_us": 3000.0}
+    ]
+
+
+def test_clock_stretch_feature_keeps_its_operation_and_request(monkeypatch):
+    from conftest import _load_timing
+
+    timing = _load_timing()
+    monkeypatch.setattr(
+        timing,
+        "export_vcd",
+        lambda _capture: """$var wire 1 ! SCL $end
+#0 1!
+#100000 0!
+#3100000 1!
+""",
+    )
+    markers = [
+        {"ts": 0.0, "kind": "CASE_BEGIN", "arg": "Single Measurement"},
+        {"ts": 50.0, "kind": "PHASE", "arg": "stretching-high"},
+        {
+            "ts": 60.0,
+            "kind": "INPUT",
+            "arg": '{"command":"0x2C06","clock_stretch":true}',
+        },
+        {"ts": 4000.0, "kind": "RESULT", "arg": "{}"},
+    ]
+    assert timing.clock_stretch_features(Path("unused.sr"), markers) == [
+        {
+            "type": "clock_stretch",
+            "source": "raw_scl_low",
+            "scl_low_us": 3000.0,
+            "request": {"command": "0x2C06", "clock_stretch": True},
+            "operation": "Single Measurement",
+            "phase": "stretching-high",
+            "repeatability": "high",
+        }
+    ]
+
+
+def test_decoded_content_hash_excludes_measured_timing():
+    from conftest import _load_decoder
+
+    decoder = _load_decoder()
+    base = {
+        "i": 0,
+        "addr": "0x44",
+        "rw": "read",
+        "addr_ack": True,
+        "bytes": [],
+        "stop": True,
+        "operation": "Single Measurement",
+        "phase": "stretching-high",
+    }
+    timed = base | {
+        "timing": {"clock_stretch": {"source": "raw_scl_low", "scl_low_us": 1.0}}
+    }
+    assert decoder.content_hash([base]) == decoder.content_hash([timed])
+
+
+def test_decoded_records_keep_relative_transaction_cadence():
+    from conftest import _load_decoder
+
+    decoder = _load_decoder()
+    records = decoder.to_records(
+        [
+            {
+                "start_ts": 100.0,
+                "end_ts": 140.0,
+                "addr": "0x44",
+                "rw": "write",
+                "addr_ack": True,
+                "bytes": [],
+                "stop": True,
+            },
+            {
+                "start_ts": 200.0,
+                "end_ts": 260.0,
+                "addr": "0x44",
+                "rw": "read",
+                "addr_ack": True,
+                "bytes": [],
+                "stop": True,
+            },
+        ]
+    )
+    assert records[0]["timing"] == {"start_offset_us": 0.0, "duration_us": 40.0}
+    assert records[1]["timing"] == {
+        "start_offset_us": 100.0,
+        "duration_us": 60.0,
+        "gap_since_previous_us": 60.0,
+    }
+
+
 @pytest.mark.parametrize("target", ["sht30", "qmp6988"])
 def test_p0_scenario_points_to_available_probe(target):
     path = REPO_ROOT / "scenarios" / target / "p0.yaml"

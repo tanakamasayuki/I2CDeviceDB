@@ -249,6 +249,8 @@ CASE_END Initialization
 - U001-C characterization は USB serial の `EVENT {json}` を収集し、raw / decoded 参照と provenance を `<probe>.observation.json` にまとめる。この v0 JSON は schema 検討用の staging 候補で、curate / validate 後にだけ永続化する。
 - **scan の decoded は永続化しない**（presence は非 capture データ。前述「presence の真実は MCU」）。永続対象は chip probe の byte 列だけ。
 - decoded の絶対 timestamp は identity・内容ハッシュに含めない。timing observation では transaction 間隔、command → ready、clock stretch 等の相対特徴を保存し、timing-focused condition の比較に使う。
+- `decoded.jsonl` の各transactionには、先頭I2C STARTからの `start_offset_us`、`duration_us`、直前transactionからの `gap_since_previous_us` を付ける。これらはwall-clockではなくcapture内の相対時刻であり、normal / periodic更新周期やpolling間隔を後から導出するための基礎データとする。timing値は内容ハッシュに含めない。
+- clock stretch の SCL LOW保持時間は protocol decoder の jsontrace ではなく、生 `.sr` から一時VCDを生成して抽出する。VCDは保存せず、該当read transactionの `timing.clock_stretch` と、command単位の observation `timing_features` に正規化した値を残す。各 feature は対応する operation と request（command / register write 等）を持ち、後から通信単位で参照できるようにする。timing値は通常のdecoded内容ハッシュには含めない。
 
 ## 検証（validate）の範囲
 

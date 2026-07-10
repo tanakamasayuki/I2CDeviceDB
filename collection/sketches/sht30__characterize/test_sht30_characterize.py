@@ -34,7 +34,11 @@ def test_sht30_characterize(
     events.append({"type": "probe_summary", "ok": ok})
 
     assert cap.path.exists() and cap.path.stat().st_size > 0
-    decoded = cap.decode()
+    decoded = cap.decode(extract_clock_stretch=True)
+    timing_features = cap.clock_stretch_features()
+    assert {feature.get("repeatability") for feature in timing_features} == {
+        "high", "medium", "low"
+    }
     observation = observation_candidate(
         target="sht30",
         probe="sht30__characterize",
@@ -42,5 +46,6 @@ def test_sht30_characterize(
         events=events,
         capture=cap.path,
         decoded=decoded,
+        timing_features=timing_features,
     )
     print(f"staged observation candidate: {observation}")

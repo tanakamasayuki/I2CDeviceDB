@@ -129,6 +129,8 @@ class SigrokCapture:
         self._log_fh = log_fh
         self.log_path = log_path
         self._stdin_fd = stdin_fd  # pty master; kept open so --continuous does not EOF
+        self._events: list[dict] | None = None
+        self._timing_features: list[dict] | None = None
 
     def stop(self) -> None:
         """Stop a --continuous capture cleanly with SIGINT (flushes the .sr)."""
@@ -166,7 +168,7 @@ class SigrokCapture:
                            stderr=subprocess.PIPE, check=True)
         return out
 
-    def decode(self, out: Path | None = None) -> Path:
+    def decode(self, out: Path | None = None, extract_clock_stretch: bool = False) -> Path:
         """Compact decode to JSONL (Level2 + Level4) via tools/decode.
 
         Uniform across probes: every capture produces a ``.decoded.jsonl`` here.
@@ -176,8 +178,13 @@ class SigrokCapture:
         trace = self.decode_jsontrace()
         decoder = _load_decoder()
         events = decoder.load_events(trace)
+        self._events = events
         txns = decoder.parse_transactions(events)
         decoder.annotate(txns, decoder.parse_markers(events))
+        if extract_clock_stretch:
+            self._timing_features = _load_timing().clock_stretch_features(
+                self.path, decoder.parse_markers(events), txns
+            )
         records = decoder.to_records(txns)
         out = out or decoded_artifact_path(self.path)
         out.write_text(
@@ -185,6 +192,18 @@ class SigrokCapture:
             encoding="utf-8",
         )
         return out
+
+    def clock_stretch_features(self) -> list[dict]:
+        """Extract raw SCL-low timing after ``decode()`` establishes markers."""
+        if self._events is None:
+            raise RuntimeError("decode() must run before timing extraction")
+        if self._timing_features is not None:
+            return self._timing_features
+        decoder = _load_decoder()
+        self._timing_features = _load_timing().clock_stretch_features(
+            self.path, decoder.parse_markers(self._events)
+        )
+        return self._timing_features
 
 
 def _load_decoder():
@@ -195,6 +214,16 @@ def _load_decoder():
     import decode  # tools/decode.py
 
     return decode
+
+
+def _load_timing():
+    """Import raw-waveform timing extraction from tools/."""
+    tools_dir = str(REPO_ROOT / "tools")
+    if tools_dir not in sys.path:
+        sys.path.insert(0, tools_dir)
+    import timing  # tools/timing.py
+
+    return timing
 
 
 @pytest.fixture
@@ -329,9 +358,17 @@ def _probe_marker(item: pytest.Item) -> str | None:
     return marker.args[0] if marker and marker.args else None
 
 
+def _probe_sort_key(item: pytest.Item) -> tuple[int, str]:
+    """Always place the MCU address scan before other collected tests."""
+    return (0 if _probe_marker(item) == "scan" else 1, item.nodeid)
+
+
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     product_key = config.getoption("product")
     if not product_key:
+        # The unscoped hardware command must keep the same safety gate as
+        # --product: scan first, then skip chip probes if scan fails.
+        items.sort(key=_probe_sort_key)
         return
 
     wanted = derive_probe_keys(product_key)
@@ -343,7 +380,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
     if deselected:
         config.hook.pytest_deselected(items=deselected)
     # Presence is the safety gate and must run before any chip traffic.
-    selected.sort(key=lambda item: (0 if _probe_marker(item) == "scan" else 1, item.nodeid))
+    selected.sort(key=_probe_sort_key)
     items[:] = selected
 
 
@@ -411,7 +448,8 @@ def observation_candidate(request: pytest.FixtureRequest):
         )
 
     def _write(*, target: str, probe: str, scenario: str, events: list[dict],
-               capture: Path, decoded: Path, condition: str = "nominal") -> Path:
+               capture: Path, decoded: Path, condition: str = "nominal",
+               timing_features: list[dict] | None = None) -> Path:
         rate = os.getenv("SIGROK_SAMPLERATE", "8MHz")
         bus_hz = int(os.getenv("TEST_I2C_BUS_HZ", "100000"))
         record = {
@@ -437,6 +475,8 @@ def observation_candidate(request: pytest.FixtureRequest):
                 "platform": "esp32:esp32@3.3.10",
             },
         }
+        if timing_features:
+            record["timing_features"] = timing_features
         out = STAGING_DIR / f"{probe}.observation.json"
         out.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
         return out

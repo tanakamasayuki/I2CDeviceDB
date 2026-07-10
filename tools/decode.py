@@ -97,10 +97,11 @@ def parse_transactions(events: list[dict]) -> list[dict]:
     cur: dict | None = None
     pending = None  # "addr" or int index into bytes, awaiting its ACK/NACK
 
-    def close(stop: bool):
+    def close(stop: bool, end_ts: float):
         nonlocal cur, pending
         if cur is not None:
             cur["stop"] = stop
+            cur["end_ts"] = end_ts
             txns.append(cur)
         cur = None
         pending = None
@@ -108,7 +109,7 @@ def parse_transactions(events: list[dict]) -> list[dict]:
     for e in evs:
         name = str(e["name"])
         if name.startswith("Start"):
-            close(stop=False)  # a Start before Stop is a repeated start
+            close(stop=False, end_ts=e["ts"])  # repeated start
             cur = {"start_ts": e["ts"], "addr": None, "rw": None,
                    "addr_ack": None, "bytes": []}
             pending = None
@@ -135,8 +136,8 @@ def parse_transactions(events: list[dict]) -> list[dict]:
             pending = None
             continue
         if name == "Stop":
-            close(stop=True)
-    close(stop=False)
+            close(stop=True, end_ts=e["ts"])
+    close(stop=False, end_ts=evs[-1]["ts"] if evs else 0)
     return txns
 
 
@@ -215,9 +216,22 @@ def annotate(txns: list[dict], markers: list[dict]) -> None:
 # output
 # --------------------------------------------------------------------------- #
 def to_records(txns: list[dict]) -> list[dict]:
-    """Content records: no absolute timestamps (not part of identity)."""
-    return [
-        {
+    """Records with relative timing, excluded from content identity.
+
+    ``start_offset_us`` is relative to the first observed I2C START in this
+    capture. It retains cadence (for example normal-mode update intervals)
+    without storing a wall-clock acquisition time.
+    """
+    records = []
+    origin_ts = txns[0]["start_ts"] if txns else 0.0
+    previous_end_ts: float | None = None
+    for i, t in enumerate(txns):
+        timing = dict(t.get("timing") or {})
+        timing["start_offset_us"] = t["start_ts"] - origin_ts
+        timing["duration_us"] = t["end_ts"] - t["start_ts"]
+        if previous_end_ts is not None:
+            timing["gap_since_previous_us"] = t["start_ts"] - previous_end_ts
+        record = {
             "i": i,
             "addr": t["addr"],
             "rw": t["rw"],
@@ -227,12 +241,15 @@ def to_records(txns: list[dict]) -> list[dict]:
             "operation": t.get("operation"),
             "phase": t.get("phase"),
         }
-        for i, t in enumerate(txns)
-    ]
+        record["timing"] = timing
+        records.append(record)
+        previous_end_ts = t["end_ts"]
+    return records
 
 
 def content_hash(records: list[dict]) -> str:
-    blob = json.dumps([{k: v for k, v in r.items() if k != "i"} for r in records],
+    blob = json.dumps(
+        [{k: v for k, v in r.items() if k not in {"i", "timing"}} for r in records],
                       sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(blob.encode()).hexdigest()[:16]
 
