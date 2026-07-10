@@ -1,0 +1,134 @@
+schema_version: 1
+id: sht30-p0-100k-nominal-1b9dbfe9f8c22329
+kind: characterization
+target: sht30
+scenario: sht30/p0
+condition: nominal
+events:
+- type: presence
+  address: '0x44'
+  ack: true
+- type: reset_status
+  reset_rc: 0
+  status_command_rc: 0
+  length: 3
+  status: 0
+  crc_ok: true
+- type: not_ready_read
+  repeatability: high
+  received: 0
+- type: measurement
+  mode: polling
+  repeatability: high
+  length: 6
+  elapsed_us: 13148
+  raw_temperature: 26619
+  raw_humidity: 39527
+  crc_temperature_ok: true
+  crc_humidity_ok: true
+- type: clock_stretch_attempt
+  repeatability: high
+  received: 0
+  blocking_us: 6759
+- type: measurement
+  mode: clock_stretch_recovery
+  repeatability: high
+  length: 6
+  elapsed_us: 741
+  raw_temperature: 26614
+  raw_humidity: 39533
+  crc_temperature_ok: true
+  crc_humidity_ok: true
+- type: not_ready_read
+  repeatability: medium
+  received: 0
+- type: measurement
+  mode: polling
+  repeatability: medium
+  length: 6
+  elapsed_us: 5172
+  raw_temperature: 26641
+  raw_humidity: 39556
+  crc_temperature_ok: true
+  crc_humidity_ok: true
+- type: clock_stretch_attempt
+  repeatability: medium
+  received: 6
+  blocking_us: 3762
+- type: measurement
+  mode: clock_stretch
+  repeatability: medium
+  length: 6
+  elapsed_us: 3762
+  raw_temperature: 26614
+  raw_humidity: 39554
+  crc_temperature_ok: true
+  crc_humidity_ok: true
+- type: not_ready_read
+  repeatability: low
+  received: 0
+- type: measurement
+  mode: polling
+  repeatability: low
+  length: 6
+  elapsed_us: 3097
+  raw_temperature: 26624
+  raw_humidity: 39544
+  crc_temperature_ok: true
+  crc_humidity_ok: true
+- type: clock_stretch_attempt
+  repeatability: low
+  received: 6
+  blocking_us: 2464
+- type: measurement
+  mode: clock_stretch
+  repeatability: low
+  length: 6
+  elapsed_us: 2464
+  raw_temperature: 26662
+  raw_humidity: 39518
+  crc_temperature_ok: true
+  crc_humidity_ok: true
+- type: probe_summary
+  ok: true
+captures:
+- key: sht30__sht30__characterize__100k__nominal__1b9dbfe9f8c22329
+  raw: captures/raw/sht30__sht30__characterize__100k__nominal__1b9dbfe9f8c22329.sr
+  decoded: captures/decoded/sht30__sht30__characterize__100k__nominal__1b9dbfe9f8c22329.jsonl
+provenance:
+  product: m5stack-u001-c
+  specimen_id: enviii-001
+  bus_speed_hz: 100000
+  sigrok_samplerate: 8MHz
+  supply_voltage_v: '5.0'
+  pullup_ohms: null
+  fqbn: esp32:esp32:esp32s3
+  platform: esp32:esp32@3.3.10
+timing_features:
+- type: clock_stretch
+  source: raw_scl_low
+  scl_low_us: 11007.75
+  request:
+    command: '0x2C06'
+    clock_stretch: true
+  operation: Single Measurement
+  phase: stretching-high
+  repeatability: high
+- type: clock_stretch
+  source: raw_scl_low
+  scl_low_us: 3058.75
+  request:
+    command: '0x2C0D'
+    clock_stretch: true
+  operation: Single Measurement
+  phase: stretching-medium
+  repeatability: medium
+- type: clock_stretch
+  source: raw_scl_low
+  scl_low_us: 1764.125
+  request:
+    command: '0x2C10'
+    clock_stretch: true
+  operation: Single Measurement
+  phase: stretching-low
+  repeatability: low

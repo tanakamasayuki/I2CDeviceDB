@@ -1,0 +1,119 @@
+schema_version: 1
+chip: qmp6988
+coverage:
+  status: partial
+  features:
+    - key: p0-identity-reset
+      status: observed
+    - key: p0-calibration-read
+      status: observed
+    - key: p0-forced-measurement
+      status: observed
+    - key: p0-normal-measurement
+      status: observed
+    - key: calibration-conversion
+      status: deferred
+    - key: oversampling-iir-sweep
+      status: deferred
+transport:
+  kind: i2c-register
+  address_bits: 7
+  register_width_bits: 8
+  read_uses_repeated_start: true
+  burst_read: true
+registers:
+  - key: reset
+    addr: "0xE0"
+    access: wo
+    write_value: "0xE6"
+    evidence:
+      source: observed
+      observations: [qmp6988-p0-100k-nominal-0283eb57c7a7c010]
+      confidence: observed
+  - key: chip-id
+    addr: "0xD1"
+    access: ro
+    observed_value: "0x5C"
+    evidence:
+      source: observed
+      observations: [qmp6988-p0-100k-nominal-0283eb57c7a7c010]
+      confidence: observed
+  - key: device-status
+    addr: "0xF3"
+    access: ro
+  - key: ctrl-meas
+    addr: "0xF4"
+    access: rw
+  - key: io-setup
+    addr: "0xF5"
+    access: rw
+  - key: raw-data
+    addr: "0xF7"
+    len: 6
+    access: ro
+    fields:
+      - key: pressure_raw
+        offset: 0
+        len: 3
+      - key: temperature_raw
+        offset: 3
+        len: 3
+  - key: calibration
+    addr: "0xA0"
+    len: 25
+    access: ro
+    variability: per-specimen
+    evidence:
+      source: observed
+      observations: [qmp6988-p0-100k-nominal-0283eb57c7a7c010]
+      confidence: observed
+operations:
+  - key: reset-and-identify
+    writes:
+      - register: reset
+        value: "0xE6"
+    reads: [chip-id]
+    evidence:
+      source: observed
+      observations: [qmp6988-p0-100k-nominal-0283eb57c7a7c010]
+      confidence: observed
+  - key: read-calibration
+    reads: [calibration]
+    evidence:
+      source: observed
+      observations: [qmp6988-p0-100k-nominal-0283eb57c7a7c010]
+      confidence: observed
+  - key: forced-measurement
+    writes:
+      - register: ctrl-meas
+        value: "0x25"
+    reads: [device-status, raw-data]
+    observed_result:
+      status_ready: true
+      final_ctrl_meas: "0x25"
+    evidence:
+      source: observed
+      observations: [qmp6988-p0-100k-nominal-0283eb57c7a7c010]
+      confidence: observed
+  - key: normal-measurement
+    writes:
+      - register: ctrl-meas
+        value: "0x27"
+      - register: ctrl-meas
+        value: "0x24"
+    reads: [raw-data]
+    observed_samples: 10
+    evidence:
+      source: observed
+      observations: [qmp6988-p0-100k-nominal-0283eb57c7a7c010]
+      confidence: observed
+states:
+  - key: forced-measurement
+    trigger:
+      register: ctrl-meas
+      value: "0x25"
+    completion_observation: device-status
+    evidence:
+      source: observed
+      observations: [qmp6988-p0-100k-nominal-0283eb57c7a7c010]
+      confidence: observed

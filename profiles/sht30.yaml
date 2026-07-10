@@ -1,0 +1,119 @@
+schema_version: 1
+chip: sht30
+coverage:
+  status: partial
+  features:
+    - key: p0-reset-status
+      status: observed
+    - key: p0-single-shot-polling
+      status: observed
+    - key: p0-single-shot-clock-stretch
+      status: observed
+    - key: periodic-mode
+      status: deferred
+    - key: heater
+      status: deferred
+transport:
+  kind: i2c-command
+  address_bits: 7
+  command_width_bits: 16
+  command_byte_order: msb-first
+  response_crc:
+    algorithm: crc-8
+    polynomial: "0x31"
+    init: "0xFF"
+    frame_layout:
+      - value_bytes: 2
+        crc_bytes: 1
+      - value_bytes: 2
+        crc_bytes: 1
+commands:
+  - key: soft-reset
+    code: "0x30A2"
+    evidence:
+      source: observed
+      observations: [sht30-p0-100k-nominal-1b9dbfe9f8c22329]
+      confidence: observed
+  - key: read-status
+    code: "0xF32D"
+    response:
+      len: 3
+    evidence:
+      source: observed
+      observations: [sht30-p0-100k-nominal-1b9dbfe9f8c22329]
+      confidence: observed
+  - key: clear-status
+    code: "0x3041"
+    evidence:
+      source: observed
+      observations: [sht30-p0-100k-nominal-1b9dbfe9f8c22329]
+      confidence: observed
+  - key: single-shot-high-no-stretch
+    code: "0x2400"
+  - key: single-shot-medium-no-stretch
+    code: "0x240B"
+  - key: single-shot-low-no-stretch
+    code: "0x2416"
+  - key: single-shot-high-stretch
+    code: "0x2C06"
+  - key: single-shot-medium-stretch
+    code: "0x2C0D"
+  - key: single-shot-low-stretch
+    code: "0x2C10"
+frames:
+  - key: single-shot-result
+    len: 6
+    fields:
+      - key: temperature_raw
+        offset: 0
+        len: 2
+      - key: temperature_crc
+        offset: 2
+        len: 1
+      - key: humidity_raw
+        offset: 3
+        len: 2
+      - key: humidity_crc
+        offset: 5
+        len: 1
+    evidence:
+      source: observed
+      observations: [sht30-p0-100k-nominal-1b9dbfe9f8c22329]
+      confidence: observed
+operations:
+  - key: reset-and-status
+    command_sequence: [soft-reset, read-status, clear-status]
+    evidence:
+      source: observed
+      observations: [sht30-p0-100k-nominal-1b9dbfe9f8c22329]
+      confidence: observed
+  - key: single-shot-polling
+    commands:
+      - single-shot-high-no-stretch
+      - single-shot-medium-no-stretch
+      - single-shot-low-no-stretch
+    result_frame: single-shot-result
+    data_ready_behavior: nack-until-ready
+    evidence:
+      source: observed
+      observations: [sht30-p0-100k-nominal-1b9dbfe9f8c22329]
+      confidence: observed
+  - key: single-shot-clock-stretch
+    commands:
+      - single-shot-high-stretch
+      - single-shot-medium-stretch
+      - single-shot-low-stretch
+    result_frame: single-shot-result
+    evidence:
+      source: observed
+      observations: [sht30-p0-100k-nominal-1b9dbfe9f8c22329]
+      confidence: confirmed
+timing:
+  - key: single-shot-clock-stretch
+    kind: scl-low-hold
+    variability: observed-per-run
+    observation_features: clock_stretch
+    evidence:
+      source: observed
+      observations: [sht30-p0-100k-nominal-1b9dbfe9f8c22329]
+      confidence: observed

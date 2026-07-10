@@ -1,0 +1,84 @@
+schema_version: 1
+id: qmp6988-p0-100k-nominal-0283eb57c7a7c010
+kind: characterization
+target: qmp6988
+scenario: qmp6988/p0
+condition: nominal
+events:
+- type: presence
+  address: '0x70'
+  ack: true
+- type: reset_identity
+  reset_rc: 0
+  chip_id: 92
+  chip_id_ok: true
+  defaults_f1_f5: '0001000000'
+- type: calibration
+  start: '0xA0'
+  length: 25
+  bytes: 52DC0DA7F4820DDC0CD201E6FC86F9C9FAA2F72B0CBB03D8BB
+  variability: per_specimen
+- type: forced_measurement
+  ctrl_meas: 37
+  elapsed_us: 4746
+  last_status: 0
+  ready: true
+  saw_measuring: true
+  final_ctrl_meas: 37
+  raw_f7_fc: A1E5046A227C
+  length: 6
+- type: normal_sample
+  index: 0
+  raw_f7_fc: A1E3546A2624
+  length: 6
+- type: normal_sample
+  index: 1
+  raw_f7_fc: A1E3706A2660
+  length: 6
+- type: normal_sample
+  index: 2
+  raw_f7_fc: A1E3086A25B0
+  length: 6
+- type: normal_sample
+  index: 3
+  raw_f7_fc: A1E3B06A2420
+  length: 6
+- type: normal_sample
+  index: 4
+  raw_f7_fc: A1E3686A2400
+  length: 6
+- type: normal_sample
+  index: 5
+  raw_f7_fc: A1E3FC6A21BC
+  length: 6
+- type: normal_sample
+  index: 6
+  raw_f7_fc: A1E3CC6A2254
+  length: 6
+- type: normal_sample
+  index: 7
+  raw_f7_fc: A1E3DC6A211C
+  length: 6
+- type: normal_sample
+  index: 8
+  raw_f7_fc: A1E2DC6A2134
+  length: 6
+- type: normal_sample
+  index: 9
+  raw_f7_fc: A1E2EC6A1FAC
+  length: 6
+- type: probe_summary
+  ok: true
+captures:
+- key: qmp6988__qmp6988__characterize__100k__nominal__0283eb57c7a7c010
+  raw: captures/raw/qmp6988__qmp6988__characterize__100k__nominal__0283eb57c7a7c010.sr
+  decoded: captures/decoded/qmp6988__qmp6988__characterize__100k__nominal__0283eb57c7a7c010.jsonl
+provenance:
+  product: m5stack-u001-c
+  specimen_id: enviii-001
+  bus_speed_hz: 100000
+  sigrok_samplerate: 8MHz
+  supply_voltage_v: '5.0'
+  pullup_ohms: null
+  fqbn: esp32:esp32:esp32s3
+  platform: esp32:esp32@3.3.10

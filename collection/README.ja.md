@@ -53,6 +53,17 @@ uv run pytest -q unit_tests
 `<probe>.decoded.jsonl`、`<probe>.observation.json` が残る。observation JSON は schema 検討中の候補であり、
 レビューせず `observations/` へコピーしない。
 
+レビュー済みの候補は、次のdry-runで内容ハッシュ名を確認してからcurateする。
+
+```sh
+cd ..
+python tools/curate.py collection/_staging/sht30__characterize.observation.json
+python tools/curate.py --write collection/_staging/sht30__characterize.observation.json
+```
+
+curate は raw `.sr` と decoded `.jsonl` を `captures/` へコピーし、参照を持つ
+YAML observation を `observations/<chip>/` に作る。scanは永続captureにしない。
+
 ## 到着前のコンパイル確認
 
 ```sh
