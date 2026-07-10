@@ -1,6 +1,7 @@
 """Hardware-free tests for product selection and structured probe output."""
 
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -269,6 +270,50 @@ def test_semantic_hash_can_drop_timing_dependent_nack_retries():
     assert decoder.semantic_hash([success], [], normalization) == decoder.semantic_hash(
         [retry, retry | {"i": 2}, success], [], normalization
     )
+
+
+def test_timing_summary_groups_exact_runs_by_semantic_signature():
+    tools_dir = str(REPO_ROOT / "tools")
+    if tools_dir not in sys.path:
+        sys.path.insert(0, tools_dir)
+    import summarize
+
+    observations = [
+        {
+            "target": "sht30",
+            "scenario": "sht30/p0",
+            "condition": "nominal",
+            "semantic_signature": "same",
+            "provenance": {"bus_speed_hz": 100000},
+            "timing_features": [
+                {
+                    "type": "clock_stretch",
+                    "operation": "Single Measurement",
+                    "phase": "stretching-high",
+                    "request": {"command": "0x2C06"},
+                    "scl_low_us": 10.0,
+                }
+            ],
+        },
+        {
+            "target": "sht30",
+            "scenario": "sht30/p0",
+            "condition": "nominal",
+            "semantic_signature": "same",
+            "provenance": {"bus_speed_hz": 100000},
+            "timing_features": [
+                {
+                    "type": "clock_stretch",
+                    "operation": "Single Measurement",
+                    "phase": "stretching-high",
+                    "request": {"command": "0x2C06"},
+                    "scl_low_us": 14.0,
+                }
+            ],
+        },
+    ]
+    assert summarize.timing_distributions(observations)[0]["samples"] == 2
+    assert summarize.timing_distributions(observations)[0]["median_us"] == 12.0
 
 
 @pytest.mark.parametrize("target", ["sht30", "qmp6988"])
