@@ -239,6 +239,7 @@
 
 ### Access library
 
+- [x] SHT30 P0 single-shot command、CRC frame、raw value を生成する小さな Python access API 実証（`tools/generate.py`）。
 - [ ] SHT30 の reset、status、single-shot、CRC、raw conversion を生成する。
 - [ ] SHT30 の stretch / polling を呼び出し側 capability で選択できるか検討する。
 - [ ] QMP6988 の identity、calibration read、field API、forced measurement、conversion を生成する。
@@ -246,6 +247,7 @@
 
 ### Emulator
 
+- [x] SHT30 P0 の command state、clock stretch、CRCを、外部注入したconversion時間で再現する小さな Python emulator 実証（`tools/generate.py`）。
 - [ ] SHT30 の command state、NACK-until-ready、clock stretch、CRC、periodic state を再現する。
 - [ ] SHT30 の temperature / humidity を外部 stimulus として注入できるようにする。
 - [ ] QMP6988 の register defaults、per-specimen calibration、forced → sleep、normal update を再現する。

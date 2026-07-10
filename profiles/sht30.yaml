@@ -9,6 +9,8 @@ coverage:
       status: observed
     - key: p0-single-shot-clock-stretch
       status: observed
+    - key: p0-python-generation-proof
+      status: validated
     - key: periodic-mode
       status: deferred
     - key: heater
@@ -88,10 +90,13 @@ operations:
       observations: [sht30-p0-100k-nominal-1b9dbfe9f8c22329]
       confidence: observed
   - key: single-shot-polling
-    commands:
-      - single-shot-high-no-stretch
-      - single-shot-medium-no-stretch
-      - single-shot-low-no-stretch
+    command_cases:
+      - repeatability: high
+        command: single-shot-high-no-stretch
+      - repeatability: medium
+        command: single-shot-medium-no-stretch
+      - repeatability: low
+        command: single-shot-low-no-stretch
     result_frame: single-shot-result
     data_ready_behavior: nack-until-ready
     evidence:
@@ -99,10 +104,13 @@ operations:
       observations: [sht30-p0-100k-nominal-1b9dbfe9f8c22329]
       confidence: observed
   - key: single-shot-clock-stretch
-    commands:
-      - single-shot-high-stretch
-      - single-shot-medium-stretch
-      - single-shot-low-stretch
+    command_cases:
+      - repeatability: high
+        command: single-shot-high-stretch
+      - repeatability: medium
+        command: single-shot-medium-stretch
+      - repeatability: low
+        command: single-shot-low-stretch
     result_frame: single-shot-result
     evidence:
       source: observed
@@ -113,6 +121,7 @@ timing:
     kind: scl-low-hold
     variability: observed-per-run
     observation_features: clock_stretch
+    emulator_parameter: conversion_us_by_repeatability
     evidence:
       source: observed
       observations: [sht30-p0-100k-nominal-1b9dbfe9f8c22329]
