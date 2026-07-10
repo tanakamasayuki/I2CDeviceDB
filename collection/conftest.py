@@ -117,7 +117,7 @@ def _compose_channels(signals: list[str]) -> str:
 
 
 def decoded_artifact_path(capture: Path) -> Path:
-    """Return the human-readable decoded sibling for a raw ``.sr`` capture."""
+    """Return the decoded sibling for a raw ``.sr`` capture."""
     return capture.with_name(f"{capture.stem}.decoded.jsonl")
 
 
