@@ -29,10 +29,10 @@ cp .env.example .env   # 自分のベンチに合わせて編集
 
 ```sh
 # 製品を指定 → 必要な probe セット（scan ＋ chip×対応ライブラリ）を導出して実行
-uv run --env-file .env pytest --product m5stack-u001
+uv run --env-file .env pytest --product m5stack-u001-c
 
 # 何が回るか確認（ハード不要）
-uv run pytest --collect-only --product m5stack-u001
+uv run pytest --collect-only --product m5stack-u001-c
 
 # 単一 probe / 部分実行は通常のテスト選択で
 uv run --env-file .env pytest sketches/scan
