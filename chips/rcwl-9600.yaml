@@ -4,9 +4,14 @@ manufacturer: RCWL
 tags: [distance, ultrasonic]
 addresses:
   - addr: "0x57"
-datasheets: []
+datasheets:
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/TC40-10T-R.pdf
 notes: |
   40 kHz ultrasonic distance-measuring chip with a direct I2C output (address 0x57), effective
-  range ~30-150 cm. Command-based, no published register map: write a trigger byte to start a
-  measurement, then read a 3-byte (24-bit) distance result. No manufacturer datasheet is publicly
-  available. M5Stack Unit Ultrasonic uses it at 0x57 (product now EOL, superseded by RCWL-9620).
+  range ~30-150 cm. Command-based, no register map: write a trigger byte to start a measurement,
+  then read a 3-byte (24-bit) distance result. No datasheet for the RCWL-9600 ranging IC itself is
+  published; the linked M5Stack-hosted datasheet is for the TC40-10T/R ceramic ultrasonic
+  transducer element (the acoustic transmitter/receiver), not the ranging chip. M5Stack Unit
+  Ultrasonic uses it at 0x57 (product now EOL, superseded by RCWL-9620).
