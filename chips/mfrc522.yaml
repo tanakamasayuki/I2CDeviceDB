@@ -1,0 +1,23 @@
+key: mfrc522
+name: MFRC522
+manufacturer: NXP
+tags: [rfid, nfc]
+addresses:
+  - addr: "0x28"
+    note: I2C mode; address set by ADR0-ADR5 pins
+datasheets:
+  - source: manufacturer
+    url: https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf
+registers:
+  - { name: command,      addr: "0x01", desc: "command register (start/stop commands)" }
+  - { name: com_irq,      addr: "0x04", desc: "interrupt request bits" }
+  - { name: fifo_data,    addr: "0x09", desc: "FIFO data in/out" }
+  - { name: fifo_level,   addr: "0x0A", desc: "FIFO level" }
+  - { name: bit_framing,  addr: "0x0D", desc: "bit framing / start send" }
+  - { name: mode,         addr: "0x11", desc: "general mode for tx/rx" }
+  - { name: tx_control,   addr: "0x14", desc: "antenna driver control" }
+  - { name: version,      addr: "0x37", desc: "version (reads 0x91/0x92)" }
+notes: |
+  13.56 MHz RFID/NFC reader. Supports SPI/I2C/UART selected by pins; in I2C mode the address is
+  set by the ADR0-ADR5 pins. Register addresses are the datasheet 6-bit addresses. version (0x37)
+  reads 0x91/0x92. M5Stack Unit RFID uses it at 0x28.

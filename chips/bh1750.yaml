@@ -1,0 +1,28 @@
+key: bh1750
+name: BH1750FVI
+manufacturer: ROHM
+tags: [light, illuminance, lux]
+addresses:
+  - addr: "0x23"
+    note: ADDR=GND (low)
+  - addr: "0x5c"
+    note: ADDR=VDD (high)
+datasheets:
+  - source: manufacturer
+    url: https://fscdn.rohm.com/en/products/databook/datasheet/ic/sensor/light/bh1750fvi-e.pdf
+    revision: "D"
+    date: "2011-11"
+registers:
+  - { name: power_down,        addr: "0x00", desc: "power down" }
+  - { name: power_on,          addr: "0x01", desc: "power on (wait for measurement command)" }
+  - { name: reset,             addr: "0x07", desc: "reset data register (only in power-on state)" }
+  - { name: cont_hres,         addr: "0x10", desc: "continuous high-resolution mode (1 lx)" }
+  - { name: cont_hres2,        addr: "0x11", desc: "continuous high-resolution mode 2 (0.5 lx)" }
+  - { name: cont_lres,         addr: "0x13", desc: "continuous low-resolution mode (4 lx)" }
+  - { name: onetime_hres,      addr: "0x20", desc: "one-time high-resolution mode" }
+  - { name: onetime_hres2,     addr: "0x21", desc: "one-time high-resolution mode 2" }
+  - { name: onetime_lres,      addr: "0x23", desc: "one-time low-resolution mode" }
+notes: |
+  Command-based, no addressable register map: write a single opcode, then read a 16-bit result
+  (illuminance = raw / 1.2 lx). The ADDR pin selects 0x23 (low) or 0x5c (high). Measurement time
+  ~120 ms (H-res) / ~16 ms (L-res). M5Stack Unit DLight uses it at 0x23.

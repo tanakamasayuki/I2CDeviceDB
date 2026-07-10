@@ -1,0 +1,27 @@
+key: mpu6886
+name: MPU6886
+manufacturer: TDK InvenSense
+tags: [imu, accelerometer, gyroscope]
+addresses:
+  - addr: "0x68"
+    note: AD0=GND (low)
+  - addr: "0x69"
+    note: AD0=VDD (high)
+datasheets:
+  - source: manufacturer
+    url: https://invensense.tdk.com/wp-content/uploads/2020/09/DS-000314-MPU-6886-v1.1.pdf
+    revision: "1.1"
+registers:
+  - { name: smplrt_div,    addr: "0x19",           desc: "sample rate divider" }
+  - { name: config,        addr: "0x1A",           desc: "DLPF configuration" }
+  - { name: gyro_config,   addr: "0x1B",           desc: "gyroscope full-scale range" }
+  - { name: accel_config,  addr: "0x1C",           desc: "accelerometer full-scale range" }
+  - { name: accel_xout,    addr: "0x3B", len: 6,   desc: "accelerometer X/Y/Z output" }
+  - { name: temp_out,      addr: "0x41", len: 2,   desc: "temperature output" }
+  - { name: gyro_xout,     addr: "0x43", len: 6,   desc: "gyroscope X/Y/Z output" }
+  - { name: pwr_mgmt_1,    addr: "0x6B",           desc: "power management / clock select / reset" }
+  - { name: who_am_i,      addr: "0x75",           desc: "device id (reads 0x19)" }
+notes: |
+  Classic register map. WHO_AM_I (0x75) reads 0x19. The AD0 pin selects address 0x68 (low) or
+  0x69 (high). Accel/temp/gyro output is a contiguous block from 0x3B (accel 6B, temp 2B, gyro 6B).
+  M5Stack Unit Mini IMU uses it at 0x68.

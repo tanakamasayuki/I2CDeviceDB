@@ -1,0 +1,21 @@
+key: bmm150
+name: BMM150
+manufacturer: Bosch Sensortec
+tags: [magnetometer, compass]
+addresses:
+  - addr: "0x10"
+    note: base (CSB/pins); range 0x10-0x13
+datasheets:
+  - source: manufacturer
+    url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmm150-ds001.pdf
+registers:
+  - { name: chip_id,       addr: "0x40",         desc: "chip id (reads 0x32)" }
+  - { name: data,          addr: "0x42", len: 8, desc: "magnetometer X/Y/Z + hall (RHALL)" }
+  - { name: power_control, addr: "0x4B",         desc: "power control / soft reset" }
+  - { name: op_mode,       addr: "0x4C",         desc: "operation mode / ODR" }
+  - { name: rep_xy,        addr: "0x51",         desc: "repetitions for X/Y" }
+  - { name: rep_z,         addr: "0x52",         desc: "repetitions for Z" }
+notes: |
+  Geomagnetic (3-axis magnetometer) sensor. chip_id (0x40) reads 0x32 (accessible only after
+  power-up via power_control). Address set by CSB/address pins across 0x10-0x13. M5Stack Unit Mini
+  IMU-Pro uses it at 0x10.

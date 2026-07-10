@@ -1,0 +1,24 @@
+key: max30100
+name: MAX30100
+manufacturer: Maxim Integrated
+tags: [heart-rate, spo2, pulse-oximeter, optical]
+addresses:
+  - addr: "0x57"
+datasheets:
+  - source: manufacturer
+    url: https://www.analog.com/media/en/technical-documentation/data-sheets/MAX30100.pdf
+registers:
+  - { name: int_status,  addr: "0x00", desc: "interrupt status" }
+  - { name: int_enable,  addr: "0x01", desc: "interrupt enable" }
+  - { name: fifo_wr_ptr, addr: "0x02", desc: "FIFO write pointer" }
+  - { name: fifo_data,   addr: "0x05", desc: "FIFO data register" }
+  - { name: mode_config, addr: "0x06", desc: "mode configuration (HR / SpO2)" }
+  - { name: spo2_config, addr: "0x07", desc: "SpO2 configuration (sample rate, pulse width)" }
+  - { name: led_config,  addr: "0x09", desc: "LED current configuration" }
+  - { name: temp_int,    addr: "0x16", desc: "die temperature integer" }
+  - { name: rev_id,      addr: "0xFE", desc: "revision id" }
+  - { name: part_id,     addr: "0xFF", desc: "part id (reads 0x11)" }
+notes: |
+  Classic register map with a sample FIFO (read via fifo_data 0x05). PART_ID (0xFF) reads 0x11.
+  Fixed I2C address 0x57. Superseded by the MAX30102 (different register map). M5Stack Unit Heart
+  uses it at 0x57.

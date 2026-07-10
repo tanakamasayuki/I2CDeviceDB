@@ -1,0 +1,14 @@
+key: ads1100
+name: ADS1100
+manufacturer: Texas Instruments
+tags: [adc, analog-input]
+addresses:
+  - addr: "0x48"
+    note: fixed per orderable variant (0x48-0x4F)
+datasheets:
+  - source: manufacturer
+    url: https://www.ti.com/lit/ds/symlink/ads1100.pdf
+notes: |
+  Single-channel 16-bit self-calibrating ADC. No addressable register map: write one configuration
+  byte (ST/BSY, SC, DR1/DR0 data rate, PGA gain) and read 2 data bytes + the config byte back. The
+  I2C address is factory-fixed per orderable suffix across 0x48-0x4F. M5Stack Unit ADC uses it at 0x48.

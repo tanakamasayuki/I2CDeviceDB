@@ -1,0 +1,25 @@
+key: atecc608b
+name: ATECC608B
+manufacturer: Microchip
+tags: [security, crypto, secure-element]
+addresses:
+  - addr: "0x35"
+    note: TNGTLS pre-provisioned variant (M5Stack); generic default 0x60, reprogrammable via UpdateExtra
+datasheets:
+  - source: manufacturer
+    url: https://ww1.microchip.com/downloads/en/DeviceDoc/ATECC608B-CryptoAuthentication-Device-Summary-Data-Sheet-DS40002239A.pdf
+    revision: DS40002239A
+  - source: manufacturer
+    url: https://ww1.microchip.com/downloads/en/DeviceDoc/ATECC608B-TNGTLS-CryptoAuthentication-Data-Sheet-DS40002250A.pdf
+    revision: DS40002250A
+registers:
+  - { name: word_reset,   addr: "0x00", desc: "word address: reset I/O address counter" }
+  - { name: word_sleep,   addr: "0x01", desc: "word address: enter sleep" }
+  - { name: word_idle,    addr: "0x02", desc: "word address: enter idle" }
+  - { name: word_command, addr: "0x03", desc: "word address: command/response packet" }
+notes: |
+  CryptoAuthentication secure element (ECC P-256, ECDSA/ECDH, AES-128, SHA-256, 16-key EEPROM).
+  Not a register-mapped device: I2C access uses a "word address" byte (0x00 reset, 0x01 sleep,
+  0x02 idle, 0x03 command) followed by command packets; results are polled back. Only a summary
+  datasheet is public (full datasheet under NDA). M5Stack Unit ID uses the ATECC608B-TNGTLS
+  (pre-provisioned) at 0x35; the address is changeable via the UpdateExtra command.

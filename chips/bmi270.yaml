@@ -1,0 +1,27 @@
+key: bmi270
+name: BMI270
+manufacturer: Bosch Sensortec
+tags: [imu, accelerometer, gyroscope]
+addresses:
+  - addr: "0x68"
+    note: SDO=GND
+  - addr: "0x69"
+    note: SDO=VDD
+datasheets:
+  - source: manufacturer
+    url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi270-ds000.pdf
+registers:
+  - { name: chip_id,         addr: "0x00",         desc: "chip id (reads 0x24)" }
+  - { name: status,          addr: "0x03",         desc: "data-ready / status flags" }
+  - { name: acc_data,        addr: "0x0C", len: 6, desc: "accelerometer X/Y/Z output" }
+  - { name: gyr_data,        addr: "0x12", len: 6, desc: "gyroscope X/Y/Z output" }
+  - { name: internal_status, addr: "0x21",         desc: "config-load / init status" }
+  - { name: acc_conf,        addr: "0x40",         desc: "accelerometer ODR/range/filter" }
+  - { name: gyr_conf,        addr: "0x42",         desc: "gyroscope ODR/range/filter" }
+  - { name: init_ctrl,       addr: "0x59",         desc: "config-file load control" }
+  - { name: pwr_ctrl,        addr: "0x7D",         desc: "enable accel/gyro/temp/aux" }
+  - { name: cmd,             addr: "0x7E",         desc: "command register (soft reset 0xB6)" }
+notes: |
+  chip_id (0x00) reads 0x24. SDO selects 0x68/0x69. Requires a ~8 KB configuration file to be
+  uploaded via init_ctrl/INIT_DATA after power-on before normal operation. M5Stack Unit Mini
+  IMU-Pro uses it at 0x68.

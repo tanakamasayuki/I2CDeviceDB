@@ -1,0 +1,26 @@
+key: ads1115
+name: ADS1115
+manufacturer: Texas Instruments
+tags: [adc, analog-input]
+addresses:
+  - addr: "0x48"
+    note: ADDR=GND
+  - addr: "0x49"
+    note: ADDR=VDD
+  - addr: "0x4a"
+    note: ADDR=SDA
+  - addr: "0x4b"
+    note: ADDR=SCL
+datasheets:
+  - source: manufacturer
+    url: https://www.ti.com/lit/ds/symlink/ads1115.pdf
+    revision: SBAS444
+registers:
+  - { name: conversion, addr: "0x00", len: 2, desc: "conversion result" }
+  - { name: config,     addr: "0x01", len: 2, desc: "config (mux, PGA, mode, data rate, comparator)" }
+  - { name: lo_thresh,  addr: "0x02", len: 2, desc: "low threshold (comparator)" }
+  - { name: hi_thresh,  addr: "0x03", len: 2, desc: "high threshold (comparator)" }
+notes: |
+  16-bit registers selected by a pointer byte (P1/P0). The ADDR pin gives a 4-way address select
+  (GND=0x48, VDD=0x49, SDA=0x4a, SCL=0x4b). Same register map as ADS1113/ADS1114/ADS1115.
+  M5Stack Unit AMeter uses it at 0x48, Unit VMeter at 0x49.

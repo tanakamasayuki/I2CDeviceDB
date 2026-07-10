@@ -1,0 +1,27 @@
+key: hym8563
+name: HYM8563
+manufacturer: Haoyu Microelectronics
+tags: [rtc, clock]
+addresses:
+  - addr: "0x51"
+datasheets:
+  - source: reseller
+    url: https://www.alldatasheet.com/datasheet-pdf/pdf/1775197/HAOYU/HYM8563.html
+registers:
+  - { name: control_status1, addr: "0x00", desc: "control/status 1 (TEST/STOP)" }
+  - { name: control_status2, addr: "0x01", desc: "control/status 2 (timer/alarm interrupt)" }
+  - { name: seconds,         addr: "0x02", desc: "seconds (BCD) + voltage-low flag" }
+  - { name: minutes,         addr: "0x03", desc: "minutes (BCD)" }
+  - { name: hours,           addr: "0x04", desc: "hours (BCD)" }
+  - { name: day,             addr: "0x05", desc: "day of month (BCD)" }
+  - { name: weekday,         addr: "0x06", desc: "weekday" }
+  - { name: month,           addr: "0x07", desc: "month (BCD) + century" }
+  - { name: year,            addr: "0x08", desc: "year (BCD)" }
+  - { name: clkout_control,  addr: "0x0D", desc: "CLKOUT frequency control" }
+  - { name: timer_control,   addr: "0x0E", desc: "countdown timer control" }
+  - { name: timer,           addr: "0x0F", desc: "countdown timer value" }
+notes: |
+  Real-time clock/calendar, register- and address-compatible with the NXP PCF8563 (fixed address
+  0x51). Time/date registers are BCD; the seconds register carries a voltage-low (VL) flag. No
+  stable manufacturer-hosted datasheet URL; behaviour follows the PCF8563. M5Stack Unit RTC uses
+  the HYM8563 at 0x51 (M5Stack's older RTCs use the equivalent BM8563).

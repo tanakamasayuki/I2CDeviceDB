@@ -1,0 +1,26 @@
+key: bme688
+name: BME688
+manufacturer: Bosch Sensortec
+tags: [gas, temperature, humidity, pressure]
+addresses:
+  - addr: "0x76"
+    note: SDO=GND
+  - addr: "0x77"
+    note: SDO=VDD
+datasheets:
+  - source: manufacturer
+    url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf
+registers:
+  - { name: chip_id,     addr: "0xD0",         desc: "chip id (reads 0x61)" }
+  - { name: reset,       addr: "0xE0",         desc: "soft reset (write 0xB6)" }
+  - { name: ctrl_hum,    addr: "0x72",         desc: "humidity oversampling" }
+  - { name: ctrl_meas,   addr: "0x74",         desc: "temp/press oversampling and mode" }
+  - { name: config,      addr: "0x75",         desc: "IIR filter config" }
+  - { name: ctrl_gas_1,  addr: "0x71",         desc: "gas heater / run-gas enable" }
+  - { name: res_heat_0,  addr: "0x5A",         desc: "heater resistance setpoint 0" }
+  - { name: gas_wait_0,  addr: "0x64",         desc: "heater wait time 0" }
+  - { name: data_field0, addr: "0x1D", len: 17, desc: "measurement field 0 (status/press/temp/hum/gas)" }
+notes: |
+  Register map similar to the BME680, with an added AI gas-scanning capability (BME688). chip_id
+  (0xD0) reads 0x61. SDO selects 0x76/0x77. Gas sensing uses a programmable heater profile
+  (res_heat/gas_wait). M5Stack Unit ENV-Pro uses it at 0x77.

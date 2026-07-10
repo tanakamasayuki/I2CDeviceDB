@@ -1,0 +1,15 @@
+key: ads1110
+name: ADS1110
+manufacturer: Texas Instruments
+tags: [adc, analog-input]
+addresses:
+  - addr: "0x48"
+    note: fixed per orderable variant (0x48-0x4F)
+datasheets:
+  - source: manufacturer
+    url: https://www.ti.com/lit/ds/symlink/ads1110.pdf
+notes: |
+  Single-channel 16-bit ADC with on-board 2.048 V reference and oscillator. No addressable register
+  map: write one configuration byte (ST/BSY, SC, DR1/DR0 data rate, PGA gain) and read 2 data bytes
+  + the config byte. Address is factory-fixed per orderable suffix across 0x48-0x4F. M5Stack Unit
+  ADC v1.1 uses it at 0x48.

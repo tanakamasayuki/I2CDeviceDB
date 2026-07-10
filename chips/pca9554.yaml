@@ -1,0 +1,18 @@
+key: pca9554
+name: PCA9554
+manufacturer: NXP
+tags: [gpio, io-expander]
+addresses:
+  - addr: "0x20"
+    note: base (A0-A2=GND); pin-programmable 0x20-0x27
+datasheets:
+  - source: manufacturer
+    url: https://www.nxp.com/docs/en/data-sheet/PCA9554_9554A.pdf
+registers:
+  - { name: input_port,         addr: "0x00", desc: "input port (read pin levels)" }
+  - { name: output_port,        addr: "0x01", desc: "output port register" }
+  - { name: polarity_inversion, addr: "0x02", desc: "polarity inversion" }
+  - { name: config,             addr: "0x03", desc: "direction config (1=input, 0=output)" }
+notes: |
+  8-bit I2C/SMBus I/O expander. Address set by A0/A1/A2 pins across 0x20-0x27 (PCA9554A variant
+  uses 0x38-0x3f). M5Stack Unit EXT.IO uses the PCA9554 (PW package) at 0x27.

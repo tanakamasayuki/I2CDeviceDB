@@ -1,0 +1,23 @@
+key: vl53l1x
+name: VL53L1X
+manufacturer: STMicroelectronics
+tags: [distance, tof, proximity]
+addresses:
+  - addr: "0x29"
+    note: default; software-reprogrammable via register 0x0001
+datasheets:
+  - source: manufacturer
+    url: https://www.st.com/resource/en/datasheet/vl53l1x.pdf
+registers:
+  - { name: soft_reset,            addr: "0x0000",         desc: "software reset" }
+  - { name: i2c_slave_address,     addr: "0x0001",         desc: "7-bit I2C address (default 0x29)" }
+  - { name: system_interrupt_clear, addr: "0x0086",        desc: "clear interrupt" }
+  - { name: system_mode_start,     addr: "0x0087",         desc: "start/stop ranging" }
+  - { name: result_range_status,   addr: "0x0089",         desc: "range status" }
+  - { name: model_id,              addr: "0x010F", len: 2, desc: "identification model id (reads 0xEACC)" }
+  - { name: result_final_range_mm, addr: "0x0096", len: 2, desc: "final ranging result in mm" }
+notes: |
+  Longer-range (~4 m) successor to the VL53L0X, with a different register set and API. Uses 16-bit
+  register addresses. ST distributes a C API/ULD rather than a full register map; the legend above
+  is the publicly documented subset. model_id (0x010F) reads 0xEACC. Default address 0x29,
+  reprogrammable via 0x0001. Distinct chip from vl53l0x. M5Stack Unit ToF4M uses it at 0x29.

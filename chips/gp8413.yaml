@@ -1,0 +1,19 @@
+key: gp8413
+name: GP8413
+manufacturer: Guestgood
+tags: [dac, analog-output]
+addresses:
+  - addr: "0x59"
+    note: default; hardware-selectable via A0-A2 pins
+datasheets:
+  - source: reseller
+    url: https://wiki.dfrobot.com/dfr1073/docs/18826
+registers:
+  - { name: output_range, addr: "0x01",         desc: "output range select (0-5V / 0-10V)" }
+  - { name: dac0,         addr: "0x02", len: 2, desc: "channel 0 DAC value (15-bit)" }
+  - { name: dac1,         addr: "0x04", len: 2, desc: "channel 1 DAC value (15-bit)" }
+notes: |
+  2-channel 15-bit I2C DAC (0-5 V / 0-10 V output). Default address 0x59, hardware-selectable.
+  Register layout above follows the DFRobot/Guestgood driver (output-range register plus two DAC
+  data registers). No manufacturer-hosted public datasheet URL confirmed; the DFRobot wiki is the
+  best documented reference. M5Stack Unit DAC2 uses it at 0x59.

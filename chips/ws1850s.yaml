@@ -1,0 +1,18 @@
+key: ws1850s
+name: WS1850S
+manufacturer: Wisesun
+tags: [rfid, nfc]
+addresses:
+  - addr: "0x28"
+datasheets: []
+registers:
+  - { name: command,     addr: "0x01", desc: "command register" }
+  - { name: fifo_data,   addr: "0x09", desc: "FIFO data in/out" }
+  - { name: fifo_level,  addr: "0x0A", desc: "FIFO level" }
+  - { name: bit_framing, addr: "0x0D", desc: "bit framing / start send" }
+  - { name: version,     addr: "0x37", desc: "version register" }
+notes: |
+  13.56 MHz RFID/NFC reader (ISO/IEC 14443A, MIFARE/NTAG), used at I2C address 0x28. Functionally
+  and software-compatible with the NXP MFRC522 register set (the [[mfrc522]] driver works over I2C).
+  No public manufacturer datasheet is available (Wisesun/Fudan part). M5Stack Unit RFID2 uses it at
+  0x28, succeeding the MFRC522-based Unit RFID.

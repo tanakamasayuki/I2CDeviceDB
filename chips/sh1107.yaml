@@ -1,0 +1,17 @@
+key: sh1107
+name: SH1107
+manufacturer: Sinowealth
+tags: [display, oled]
+addresses:
+  - addr: "0x3c"
+    note: SA0=GND
+  - addr: "0x3d"
+    note: SA0=VDD
+datasheets:
+  - source: reseller
+    url: https://www.displayfuture.com/Display/datasheet/controller/SH1107.pdf
+notes: |
+  128x128 OLED/PLED dot-matrix driver+controller. No addressable register map: after the slave
+  address, a control byte selects the stream - 0x00 = command stream, 0x40 = data (GDDRAM) stream
+  (Co/D-C# bits). SA0 pin selects 0x3c/0x3d. Fast-mode I2C (400 kHz). M5Stack Unit OLED uses it at
+  0x3c.

@@ -1,0 +1,24 @@
+key: adxl345
+name: ADXL345
+manufacturer: Analog Devices
+tags: [accelerometer, motion]
+addresses:
+  - addr: "0x53"
+    note: SDO/ALT ADDRESS=GND
+  - addr: "0x1d"
+    note: SDO/ALT ADDRESS=VDD
+datasheets:
+  - source: manufacturer
+    url: https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf
+registers:
+  - { name: devid,       addr: "0x00",           desc: "device id (reads 0xE5)" }
+  - { name: bw_rate,     addr: "0x2C",           desc: "data rate and power mode" }
+  - { name: power_ctl,   addr: "0x2D",           desc: "power-saving / measurement enable" }
+  - { name: int_enable,  addr: "0x2E",           desc: "interrupt enable" }
+  - { name: data_format, addr: "0x31",           desc: "data format / range" }
+  - { name: datax0,      addr: "0x32", len: 6,   desc: "X/Y/Z acceleration output" }
+  - { name: fifo_ctl,    addr: "0x38",           desc: "FIFO control" }
+notes: |
+  Classic register map. DEVID (0x00) reads 0xE5. The SDO/ALT ADDRESS pin selects 0x53 (GND) or
+  0x1d (VDD). X/Y/Z data is a 6-byte block from 0x32 (little-endian). M5Stack Unit Accel uses it
+  at 0x53.

@@ -1,0 +1,26 @@
+key: ina226
+name: INA226
+manufacturer: Texas Instruments
+tags: [current, voltage, power]
+addresses:
+  - addr: "0x40"
+    note: default (A1=A0=GND); pin-programmable 0x40-0x4F via A0/A1
+datasheets:
+  - source: manufacturer
+    url: https://www.ti.com/lit/ds/symlink/ina226.pdf
+    revision: SBOS547
+registers:
+  - { name: config,          addr: "0x00", len: 2, desc: "configuration (averaging, conversion time, mode)" }
+  - { name: shunt_voltage,   addr: "0x01", len: 2, desc: "shunt voltage" }
+  - { name: bus_voltage,     addr: "0x02", len: 2, desc: "bus voltage" }
+  - { name: power,           addr: "0x03", len: 2, desc: "power" }
+  - { name: current,         addr: "0x04", len: 2, desc: "current" }
+  - { name: calibration,     addr: "0x05", len: 2, desc: "calibration (sets current LSB)" }
+  - { name: mask_enable,     addr: "0x06", len: 2, desc: "alert mask / enable" }
+  - { name: alert_limit,     addr: "0x07", len: 2, desc: "alert limit" }
+  - { name: manufacturer_id, addr: "0xFE", len: 2, desc: "manufacturer id (reads 0x5449 'TI')" }
+  - { name: die_id,          addr: "0xFF", len: 2, desc: "die id (reads 0x2260)" }
+notes: |
+  16-bit registers selected by a pointer byte. The calibration register (0x05) must be programmed
+  before power/current read correctly. Address is set by A0/A1 pins across 0x40-0x4F.
+  manufacturer_id reads 0x5449, die_id 0x2260. M5Stack Unit INA226-10A / INA226-1A use it at 0x41.

@@ -1,0 +1,13 @@
+key: rcwl-9620
+name: RCWL-9620
+manufacturer: RCWL
+tags: [distance, ultrasonic]
+addresses:
+  - addr: "0x57"
+datasheets: []
+notes: |
+  40 kHz ultrasonic distance-measuring chip with a 16 mm probe and direct I2C output (address
+  0x57), range ~2-450 cm (±2%), with better temperature compensation than the RCWL-9600.
+  Command-based, no published register map: write a trigger byte, then read a 3-byte (24-bit)
+  distance result. No manufacturer datasheet is publicly available. M5Stack Unit Ultrasonic-I2C
+  uses it at 0x57.

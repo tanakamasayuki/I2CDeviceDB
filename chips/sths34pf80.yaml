@@ -1,0 +1,23 @@
+key: sths34pf80
+name: STHS34PF80
+manufacturer: STMicroelectronics
+tags: [presence, motion, infrared, temperature]
+addresses:
+  - addr: "0x5a"
+datasheets:
+  - source: manufacturer
+    url: https://www.st.com/resource/en/datasheet/sths34pf80.pdf
+registers:
+  - { name: who_am_i,    addr: "0x0F",         desc: "device id (reads 0xD3)" }
+  - { name: avg_trim,    addr: "0x10",         desc: "averaging config" }
+  - { name: ctrl1,       addr: "0x20",         desc: "ODR / control" }
+  - { name: ctrl2,       addr: "0x21",         desc: "one-shot / boot / func config access" }
+  - { name: ctrl3,       addr: "0x22",         desc: "interrupt routing / config" }
+  - { name: status,      addr: "0x23",         desc: "data-ready status" }
+  - { name: func_status, addr: "0x25",         desc: "presence/motion/tamb-shock flags" }
+  - { name: tobject,     addr: "0x26", len: 2, desc: "object temperature (TOBJECT)" }
+  - { name: tambient,    addr: "0x28", len: 2, desc: "ambient temperature (TAMBIENT)" }
+notes: |
+  TMOS infrared sensor for presence and motion detection. who_am_i (0x0F) reads 0xD3. Fixed I2C
+  address 0x5a; auto-increment is always active. Presence/motion are computed by embedded functions
+  (configured via a function-register block). M5Stack Unit TMOS PIR uses it at 0x5a.

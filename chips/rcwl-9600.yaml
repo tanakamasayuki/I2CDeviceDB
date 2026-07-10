@@ -1,0 +1,12 @@
+key: rcwl-9600
+name: RCWL-9600
+manufacturer: RCWL
+tags: [distance, ultrasonic]
+addresses:
+  - addr: "0x57"
+datasheets: []
+notes: |
+  40 kHz ultrasonic distance-measuring chip with a direct I2C output (address 0x57), effective
+  range ~30-150 cm. Command-based, no published register map: write a trigger byte to start a
+  measurement, then read a 3-byte (24-bit) distance result. No manufacturer datasheet is publicly
+  available. M5Stack Unit Ultrasonic uses it at 0x57 (product now EOL, superseded by RCWL-9620).

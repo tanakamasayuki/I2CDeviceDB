@@ -1,0 +1,14 @@
+key: tca9548a
+name: TCA9548A
+manufacturer: Texas Instruments
+tags: [i2c-mux, i2c-switch]
+addresses:
+  - addr: "0x70"
+    note: base (A0-A2=GND); pin-programmable 0x70-0x77
+datasheets:
+  - source: manufacturer
+    url: https://www.ti.com/lit/ds/symlink/tca9548a.pdf
+notes: |
+  8-channel bidirectional I2C switch with reset. No register map: a single control byte selects
+  which downstream channels are connected (one bit per channel). Address set by A0/A1/A2 across
+  0x70-0x77. M5Stack Unit PaHub uses it at 0x70.

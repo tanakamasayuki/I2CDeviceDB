@@ -1,0 +1,17 @@
+key: ssd1315
+name: SSD1315
+manufacturer: Solomon Systech
+tags: [display, oled]
+addresses:
+  - addr: "0x3c"
+    note: D/C#(SA0)=GND
+  - addr: "0x3d"
+    note: D/C#(SA0)=VDD
+datasheets:
+  - source: reseller
+    url: https://cursedhardware.github.io/epd-driver-ic/SSD1315.pdf
+notes: |
+  128x64 OLED/PLED dot-matrix driver+controller (SSD1306-compatible command set). No addressable
+  register map: after the slave address, a control byte selects the stream - 0x00 = command stream,
+  0x40 = data (GDDRAM) stream. The D/C# pin acts as SA0 to select 0x3c/0x3d. M5Stack Unit Mini OLED
+  uses it at 0x3c.

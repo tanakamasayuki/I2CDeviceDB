@@ -1,0 +1,26 @@
+key: mlx90614
+name: MLX90614
+manufacturer: Melexis
+tags: [temperature, infrared, non-contact]
+addresses:
+  - addr: "0x5a"
+    note: default; programmable in EEPROM (0x2E)
+datasheets:
+  - source: manufacturer
+    url: https://www.melexis.com/-/media/files/documents/datasheets/mlx90614-datasheet-melexis.pdf
+registers:
+  - { name: ram_ta,        addr: "0x06", desc: "RAM: ambient temperature Ta" }
+  - { name: ram_tobj1,     addr: "0x07", desc: "RAM: object temperature Tobj1" }
+  - { name: ram_tobj2,     addr: "0x08", desc: "RAM: object temperature Tobj2" }
+  - { name: eeprom_tomax,  addr: "0x20", desc: "EEPROM: object temp range max" }
+  - { name: eeprom_tomin,  addr: "0x21", desc: "EEPROM: object temp range min" }
+  - { name: eeprom_pwmctrl, addr: "0x22", desc: "EEPROM: PWM / config" }
+  - { name: eeprom_emissivity, addr: "0x24", desc: "EEPROM: emissivity correction" }
+  - { name: eeprom_smbus_addr, addr: "0x2E", desc: "EEPROM: SMBus slave address" }
+  - { name: read_flags,    addr: "0xF0", desc: "read flags" }
+  - { name: sleep,         addr: "0xFF", desc: "enter sleep mode" }
+notes: |
+  SMBus interface with PEC. Access is command-byte based: opcode | address, where the RAM group
+  uses opcode 0x00 (addr 0x00-0x1F) and the EEPROM group opcode 0x20 (addr 0x00-0x1F). RAM
+  temperature is returned in 0.02 K units. The slave address is stored in EEPROM at 0x2E
+  (default 0x5a). M5Stack Unit NCIR / NCIR2 use it at 0x5a.
