@@ -62,7 +62,7 @@ arduino-cli compile --fqbn esp32:esp32:esp32s3 sketches/qmp6988__characterize
 Ubuntu で `sigrok-cli` が未導入なら、到着後の実行前にインストールする。
 
 ```sh
-sudo apt install sigrok-cli
+sudo apt install sigrok-cli sigrok-firmware-fx2lafw
 ```
 
 `.env` 設定だけを確認する offline preflight と、機材接続後の完全 preflight:
