@@ -1,0 +1,11 @@
+key: m5stack-u086
+name: Unit AMeter
+vendor: m5stack
+sku: U086
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/Ameter%20Unit
+components:
+  - chip: ads1115
+    addr: "0x48"
+  - chip: eeprom
+    addr: "0x51"

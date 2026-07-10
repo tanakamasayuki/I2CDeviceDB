@@ -1,0 +1,9 @@
+key: m5stack-u012-b
+name: Unit DAC2
+vendor: m5stack
+sku: U012-B
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/Unit-DAC2
+components:
+  - chip: gp8413
+    addr: "0x59"

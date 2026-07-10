@@ -1,0 +1,9 @@
+key: m5stack-u011-b
+name: Unit EXT.IO2
+vendor: m5stack
+sku: U011-B
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/extio2
+components:
+  - chip: stm32f030
+    addr: "0x45"

@@ -1,0 +1,9 @@
+key: m5stack-u090
+name: Unit Mini BPS
+vendor: m5stack
+sku: U090
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/bps
+components:
+  - chip: bmp280
+    addr: "0x76"

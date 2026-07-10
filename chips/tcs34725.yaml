@@ -1,0 +1,33 @@
+key: tcs34725
+name: TCS34725
+manufacturer: ams-OSRAM
+tags: [color, light, rgb]
+addresses:
+  - addr: "0x29"
+datasheets:
+  - source: manufacturer
+    url: https://look.ams-osram.com/m/7ec5bcc3e40679be/original/TCS3472-DS000390.pdf
+    revision: v1-04
+    date: "2020-04"
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/TCS3472_en.pdf
+    revision: v1-03
+    date: "2018-03"
+registers:
+  - { name: enable,  addr: "0x00",         desc: "power on, RGBC enable, interrupts (PON/AEN/WEN/AIEN)" }
+  - { name: atime,   addr: "0x01",         desc: "RGBC integration time" }
+  - { name: wtime,   addr: "0x03",         desc: "wait time" }
+  - { name: control, addr: "0x0F",         desc: "RGBC gain (1x/4x/16x/60x)" }
+  - { name: id,      addr: "0x12",         desc: "device id (0x44 = TCS34725, 0x4D = TCS34727)" }
+  - { name: status,  addr: "0x13",         desc: "AVALID / AINT status" }
+  - { name: cdata,   addr: "0x14", len: 2, desc: "clear-channel ADC data (little-endian)" }
+  - { name: rdata,   addr: "0x16", len: 2, desc: "red-channel ADC data (little-endian)" }
+  - { name: gdata,   addr: "0x18", len: 2, desc: "green-channel ADC data (little-endian)" }
+  - { name: bdata,   addr: "0x1A", len: 2, desc: "blue-channel ADC data (little-endian)" }
+notes: |
+  Register access requires the COMMAND bit: every access transmits 0x80 | addr (command byte =
+  CMD[7] | TYPE[6:5] | ADDR[4:0]); TYPE 01 = auto-increment (0xA0 | addr) for multi-byte reads.
+  Register addresses above are the bare addresses without the command bit. The id register (0x12)
+  reads 0x44 for TCS34725 and 0x4D for TCS34727. I2C address is fixed at 0x29 (not selectable).
+  Datasheet covers the TCS3472 family (TCS34721/23/25/27); M5Stack Unit Color uses TCS34725.

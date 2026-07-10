@@ -1,0 +1,37 @@
+key: sht40
+name: SHT40
+manufacturer: Sensirion
+tags: [temperature, humidity]
+addresses:
+  - addr: "0x44"
+    note: SHT40-AD1B (default grade; ENV-IV variant)
+  - addr: "0x45"
+    note: SHT40-BD1B
+  - addr: "0x46"
+    note: SHT40-CD1B
+datasheets:
+  - source: manufacturer
+    url: https://sensirion.com/media/documents/33FD6951/6555C40E/Sensirion_Datasheet_SHT4x.pdf
+    revision: "6.4"
+    date: "2023-11"
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/ENV%E2%85%A3%20Unit/SHT40.pdf
+    revision: "2"
+    date: "2021-07"
+registers:
+  - { name: measure_high_precision,   addr: "0xFD", desc: "measure T & RH, high precision" }
+  - { name: measure_medium_precision, addr: "0xF6", desc: "measure T & RH, medium precision" }
+  - { name: measure_low_precision,    addr: "0xE0", desc: "measure T & RH, lowest precision" }
+  - { name: soft_reset,               addr: "0x94", desc: "soft reset" }
+  - { name: read_serial,              addr: "0x89", desc: "read serial number" }
+  - { name: heater_200mw_1s,          addr: "0x39", desc: "heater 200 mW for 1 s, then high-precision measure" }
+  - { name: heater_110mw_1s,          addr: "0x2F", desc: "heater 110 mW for 1 s" }
+  - { name: heater_20mw_1s,           addr: "0x1E", desc: "heater 20 mW for 1 s" }
+notes: |
+  Command-based protocol, not a classic register map: write one 8-bit command byte, wait, then
+  read the result (6 bytes: T MSB/LSB + CRC-8, then RH MSB/LSB + CRC-8; poly 0x31, init 0xFF).
+  I2C address is factory-fixed per ordering variant (0x44 / 0x45 / 0x46), not pin-selectable.
+  SHT40 is the base accuracy grade of the SHT4x family (SHT41 / SHT45 are tighter, sharing the
+  command set). The Sensirion resource permalink (sensirion.com/resource/datasheet/sht4x) always
+  serves the latest revision. M5Stack Unit ENV-IV uses SHT40-AD1B at 0x44 (product marked EOL).

@@ -1,0 +1,9 @@
+key: m5stack-u028
+name: Unit NCIR
+vendor: m5stack
+sku: U028
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/ncir
+components:
+  - chip: mlx90614
+    addr: "0x5a"

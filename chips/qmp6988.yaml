@@ -1,0 +1,31 @@
+key: qmp6988
+name: QMP6988
+manufacturer: QST Corporation
+tags: [pressure, temperature]
+addresses:
+  - addr: "0x70"
+    note: SDO=GND
+  - addr: "0x56"
+    note: SDO=VDDIO
+datasheets:
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/enviii/QMP6988%20Datasheet.pdf
+    revision: "C"
+    date: "2020-11"
+registers:
+  - { name: chip_id,   addr: "0xD1",           desc: "chip id (0x5C)" }
+  - { name: reset,     addr: "0xE0",           desc: "soft reset (write 0xE6)" }
+  - { name: status,    addr: "0xF3",           desc: "measure / otp_update flags" }
+  - { name: ctrl_meas, addr: "0xF4",           desc: "temp/press oversampling and power mode" }
+  - { name: io_setup,  addr: "0xF5",           desc: "standby time and SPI 3/4-wire select" }
+  - { name: data,      addr: "0xF7", len: 6,   desc: "pressure and temperature output (24-bit each)" }
+  - { name: calib,     addr: "0xA0", len: 25,  desc: "compensation coefficients (OTP)" }
+notes: |
+  Chip id register 0xD1 reads 0x5C. Pressure+temperature output is a contiguous 6-byte block
+  0xF7..0xFC (pressure first, then temperature), each 24-bit offset by 2^23. Soft reset is
+  triggered by writing 0xE6 to 0xE0. The SDO pin selects 0x70 (GND) or 0x56 (VDDIO).
+  Manufacturer is QST Corporation (Shanghai); the commonly repeated "Yamaha original design"
+  attribution is not confirmed in the official datasheet. No working QST-hosted datasheet URL
+  is published (product page 404s); the M5Stack-hosted copy is the genuine QST document
+  (Doc# 13-52-13, Rev C). Used in Unit ENV-III at 0x70 and Unit Mini BPS v1.1 at 0x56.

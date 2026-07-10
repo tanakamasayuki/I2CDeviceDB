@@ -1,0 +1,9 @@
+key: m5stack-u040-b
+name: Unit PaHub v2.0
+vendor: m5stack
+sku: U040-B
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/pahub2
+components:
+  - chip: pca9548a
+    addr: "0x70"

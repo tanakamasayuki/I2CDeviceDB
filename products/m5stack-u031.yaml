@@ -1,0 +1,9 @@
+key: m5stack-u031
+name: Unit RFID
+vendor: m5stack
+sku: U031
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/rfid
+components:
+  - chip: mfrc522
+    addr: "0x28"

@@ -1,0 +1,9 @@
+key: m5stack-u108
+name: Unit Scales
+vendor: m5stack
+sku: U108
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/UNIT%20Scales
+components:
+  - chip: stm32f030
+    addr: "0x26"

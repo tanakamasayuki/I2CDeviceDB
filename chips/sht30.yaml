@@ -1,0 +1,34 @@
+key: sht30
+name: SHT30
+manufacturer: Sensirion
+tags: [temperature, humidity]
+addresses:
+  - addr: "0x44"
+    note: ADDR=GND
+  - addr: "0x45"
+    note: ADDR=VDD
+datasheets:
+  - source: manufacturer
+    url: https://sensirion.com/media/documents/213E6A3B/63A5A569/Datasheet_SHT3x_DIS.pdf
+    revision: "7"
+    date: "2022-12"
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/SHT3x_Datasheet_digital.pdf
+registers:
+  - { name: meas_highrep_stretch, addr: "0x2C06", desc: "single-shot, high repeatability, clock stretching" }
+  - { name: meas_highrep,         addr: "0x2400", desc: "single-shot, high repeatability, no clock stretching" }
+  - { name: periodic_art,         addr: "0x2B32", desc: "periodic measurement with ART (4 Hz)" }
+  - { name: fetch_data,           addr: "0xE000", desc: "fetch data in periodic mode" }
+  - { name: break,                addr: "0x3093", desc: "stop periodic acquisition" }
+  - { name: soft_reset,           addr: "0x30A2", desc: "soft reset / re-initialization" }
+  - { name: heater_enable,        addr: "0x306D", desc: "enable internal heater" }
+  - { name: heater_disable,       addr: "0x3066", desc: "disable internal heater" }
+  - { name: read_status,          addr: "0xF32D", desc: "read status register" }
+  - { name: clear_status,         addr: "0x3041", desc: "clear status register" }
+notes: |
+  Commands are 16-bit codes (each embeds a 3-bit CRC), not classic 8-bit registers.
+  Measurement readout returns 6 bytes: temperature MSB/LSB + CRC-8, then humidity MSB/LSB + CRC-8
+  (CRC-8 poly 0x31). The ADDR pin selects 0x44 (GND) or 0x45 (VDD) and must not float.
+  SHT30 is the entry accuracy grade of the SHT3x-DIS family (SHT31 / SHT35 are tighter).
+  M5Stack ENV-II and ENV-III both use SHT30 at 0x44.

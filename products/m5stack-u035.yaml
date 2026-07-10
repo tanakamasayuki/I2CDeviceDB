@@ -1,0 +1,9 @@
+key: m5stack-u035
+name: Unit CardKB
+vendor: m5stack
+sku: U035
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/cardkb
+components:
+  - chip: atmega8a
+    addr: "0x5f"

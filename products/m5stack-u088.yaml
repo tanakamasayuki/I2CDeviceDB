@@ -1,0 +1,9 @@
+key: m5stack-u088
+name: Unit Mini TVOC/eCO2
+vendor: m5stack
+sku: U088
+connector: HY2.0-4P (Grove)
+url: https://docs.m5stack.com/en/unit/tvoc
+components:
+  - chip: sgp30
+    addr: "0x58"

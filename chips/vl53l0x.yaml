@@ -1,0 +1,33 @@
+key: vl53l0x
+name: VL53L0X
+manufacturer: STMicroelectronics
+tags: [distance, tof, proximity]
+addresses:
+  - addr: "0x29"
+    note: default; software-reprogrammable via register 0x8A
+datasheets:
+  - source: manufacturer
+    url: https://www.st.com/resource/en/datasheet/vl53l0x.pdf
+    revision: Rev 1 (DocID029104)
+    date: "2016-05"
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf
+    revision: Rev 1 (DocID029104)
+    date: "2016-05"
+registers:
+  - { name: sysrange_start,        addr: "0x00", desc: "start ranging (bit0 = start; 0x01 single, 0x02/0x03 continuous)" }
+  - { name: system_intr_clear,     addr: "0x0B", desc: "write 0x01 to clear interrupt" }
+  - { name: result_intr_status,    addr: "0x13", desc: "interrupt status (data-ready)" }
+  - { name: result_range_status,   addr: "0x14", desc: "range status; 16-bit distance in mm at 0x1E" }
+  - { name: i2c_slave_address,     addr: "0x8A", desc: "current 7-bit I2C address (default 0x29); write to reprogram" }
+  - { name: model_id,              addr: "0xC0", desc: "identification model id (reads 0xEE)" }
+  - { name: revision_id,           addr: "0xC2", desc: "identification revision id (reads 0x10 after reset)" }
+notes: |
+  ST distributes a C API (VL53L0X_*) rather than a full register spec: the datasheet documents
+  electricals, timing and the identity registers but not a complete register map. The register
+  legend above is partial and derived from community drivers (Pololu, Adafruit) and the ST API
+  headers. Identity check: model_id (0xC0) reads 0xEE. Default address 0x29 is software-
+  reprogrammable via 0x8A to run several sensors on one bus (bring up one at a time via XSHUT).
+  On the wire the 8-bit form is 0x52 write / 0x53 read. Distinct from the VL53L1X (Unit ToF4M) —
+  different register set and API, so a separate chip entry. M5Stack Unit ToF uses it at 0x29.
