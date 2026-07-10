@@ -5,5 +5,5 @@ sku: U162
 connector: HY2.0-4P (Grove)
 url: https://docs.m5stack.com/en/unit/AIN4-20mA%20Unit
 components:
-  - chip: stm32g030
+  - chip: m5stack-mcu-u162
     addr: "0x55"

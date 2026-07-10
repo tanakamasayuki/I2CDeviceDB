@@ -1,0 +1,14 @@
+key: m5stack-mcu-u041
+name: Unit PbHub controller
+manufacturer: M5Stack
+tags: [gpio, hub, expander]
+addresses:
+  - addr: "0x61"
+datasheets:
+  - source: vendor
+    vendor: m5stack
+    url: https://docs.m5stack.com/en/unit/pbhub
+notes: |
+  Firmware-defined I2C slave: the I2C endpoint is an on-board ATmega328 running M5Stack
+  firmware (not a fixed-function IC), so the register map is product-specific and is grown
+  from captures rather than a datasheet. Modeled per-unit. Silicon: ATmega328. Used in M5Stack Unit PbHub (U041) at 0x61.

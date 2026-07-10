@@ -1,0 +1,14 @@
+key: m5stack-mcu-u165
+name: Unit 8Servos controller
+manufacturer: M5Stack
+tags: [servo, pwm, actuator]
+addresses:
+  - addr: "0x25"
+datasheets:
+  - source: vendor
+    vendor: m5stack
+    url: https://docs.m5stack.com/en/unit/8Servos%20Unit
+notes: |
+  Firmware-defined I2C slave: the I2C endpoint is an on-board STM32F030 running M5Stack
+  firmware (not a fixed-function IC), so the register map is product-specific and is grown
+  from captures rather than a datasheet. Modeled per-unit. Silicon: STM32F030. Used in M5Stack Unit 8Servos (U165) at 0x25.

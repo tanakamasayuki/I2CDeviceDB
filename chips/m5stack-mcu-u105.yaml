@@ -1,0 +1,14 @@
+key: m5stack-mcu-u105
+name: Unit DDS controller
+manufacturer: M5Stack
+tags: [signal-generator, dds]
+addresses:
+  - addr: "0x31"
+datasheets:
+  - source: vendor
+    vendor: m5stack
+    url: https://docs.m5stack.com/en/unit/dds
+notes: |
+  Firmware-defined I2C slave: the I2C endpoint is an on-board STM32F031 running M5Stack
+  firmware (not a fixed-function IC), so the register map is product-specific and is grown
+  from captures rather than a datasheet. Modeled per-unit. Silicon: STM32F031. The MCU controls an AD9833 waveform generator (SPI, not on the I2C bus). Used in M5Stack Unit DDS (U105) at 0x31.

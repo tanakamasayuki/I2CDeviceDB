@@ -1,0 +1,13 @@
+key: eeprom
+name: EEPROM
+manufacturer: unknown
+tags: [eeprom, memory]
+addresses:
+  - addr: "0x51"
+  - addr: "0x53"
+datasheets: []
+notes: |
+  Generic I2C EEPROM placeholder. M5Stack Unit AMeter (0x51) and Unit VMeter (0x53) carry a small
+  calibration EEPROM whose exact part number M5Stack does not publish; this entry stands in for
+  that device until the part is identified from captures or teardown. Standard 24-series-style
+  byte/page read/write is assumed (address pointer + data).

@@ -5,5 +5,5 @@ sku: U140
 connector: HY2.0-4P (Grove)
 url: https://docs.m5stack.com/en/unit/DCSSR%20Unit
 components:
-  - chip: esp32-c3
+  - chip: m5stack-mcu-u140
     addr: "0x50"

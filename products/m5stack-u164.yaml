@@ -5,5 +5,5 @@ sku: U164
 connector: HY2.0-4P (Grove)
 url: https://docs.m5stack.com/en/unit/AC%20Measure%20Unit
 components:
-  - chip: stm32g030
+  - chip: m5stack-mcu-u164
     addr: "0x42"

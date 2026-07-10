@@ -1,0 +1,14 @@
+key: m5stack-mcu-u120
+name: Unit LCD controller
+manufacturer: M5Stack
+tags: [display, lcd]
+addresses:
+  - addr: "0x3e"
+datasheets:
+  - source: vendor
+    vendor: m5stack
+    url: https://docs.m5stack.com/en/unit/lcd
+notes: |
+  Firmware-defined I2C slave: the I2C endpoint is an on-board ESP32-PICO running M5Stack
+  firmware (not a fixed-function IC), so the register map is product-specific and is grown
+  from captures rather than a datasheet. Modeled per-unit. Silicon: ESP32-PICO. The MCU drives an ST7789V2 SPI LCD (not on the I2C bus). Used in M5Stack Unit LCD (U120) at 0x3e.

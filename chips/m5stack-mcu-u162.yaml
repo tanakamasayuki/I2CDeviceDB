@@ -1,0 +1,14 @@
+key: m5stack-mcu-u162
+name: Unit AIN4-20mA controller
+manufacturer: M5Stack
+tags: [adc, current-loop, analog-input]
+addresses:
+  - addr: "0x55"
+datasheets:
+  - source: vendor
+    vendor: m5stack
+    url: https://docs.m5stack.com/en/unit/AIN4-20mA%20Unit
+notes: |
+  Firmware-defined I2C slave: the I2C endpoint is an on-board STM32G030 running M5Stack
+  firmware (not a fixed-function IC), so the register map is product-specific and is grown
+  from captures rather than a datasheet. Modeled per-unit. Silicon: STM32G030. The MCU reads a 4-20 mA current loop via an isolated analog front-end (not on the I2C bus). Used in M5Stack Unit AIN4-20mA (U162) at 0x55.

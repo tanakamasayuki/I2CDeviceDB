@@ -1,0 +1,14 @@
+key: m5stack-mcu-u146
+name: Unit DigiClock controller
+manufacturer: M5Stack
+tags: [display, clock, led]
+addresses:
+  - addr: "0x30"
+datasheets:
+  - source: vendor
+    vendor: m5stack
+    url: https://docs.m5stack.com/en/unit/digi_clock
+notes: |
+  Firmware-defined I2C slave: the I2C endpoint is an on-board STM32F030 running M5Stack
+  firmware (not a fixed-function IC), so the register map is product-specific and is grown
+  from captures rather than a datasheet. Modeled per-unit. Silicon: STM32F030. The MCU drives a TM1637 LED display (2-wire, not standard I2C). Used in M5Stack Unit DigiClock (U146) at 0x30.

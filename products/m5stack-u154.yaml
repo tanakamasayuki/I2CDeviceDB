@@ -5,5 +5,5 @@ sku: U154
 connector: HY2.0-4P (Grove)
 url: https://docs.m5stack.com/en/unit/8Angle
 components:
-  - chip: stm32f030
+  - chip: m5stack-mcu-u154
     addr: "0x43"
