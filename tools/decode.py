@@ -254,6 +254,48 @@ def content_hash(records: list[dict]) -> str:
     return hashlib.sha256(blob.encode()).hexdigest()[:16]
 
 
+def semantic_hash(
+    records: list[dict], masks: list[dict], normalizations: list[dict] | None = None
+) -> str:
+    """Hash protocol meaning after profile-declared volatile-value masking.
+
+    Exact capture identity intentionally retains observed payload bytes. This
+    signature is for grouping runs whose protocol is identical but whose sensor
+    readings or per-specimen coefficients differ. Timing is already excluded
+    by ``content_hash`` and stays excluded here.
+    """
+    normalizations = normalizations or []
+    masked = []
+    for record in json.loads(json.dumps(records)):
+        drop = False
+        for rule in normalizations:
+            match = rule.get("match", {})
+            if any(record.get(key) != value for key, value in match.items()):
+                continue
+            if rule.get("action") == "drop-record":
+                drop = True
+        if not drop:
+            masked.append(record)
+    for record in masked:
+        for rule in masks:
+            match = rule.get("match", {})
+            if any(record.get(key) != value for key, value in match.items()):
+                continue
+            if rule.get("mask") == "all-byte-values":
+                for byte in record.get("bytes", []):
+                    byte["value"] = "__masked__"
+    blob = json.dumps(
+        {
+            "records": [{k: v for k, v in record.items() if k not in {"i", "timing"}} for record in masked],
+            "masks": masks,
+            "normalizations": normalizations,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(blob.encode()).hexdigest()[:16]
+
+
 def summarize(records: list[dict]) -> dict:
     acked = [r["addr"] for r in records if r["addr_ack"]]
     ops = sorted({r["operation"] for r in records if r["operation"]})

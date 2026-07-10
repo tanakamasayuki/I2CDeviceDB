@@ -21,6 +21,28 @@ transport:
   register_width_bits: 8
   read_uses_repeated_start: true
   burst_read: true
+semantic_masks:
+  - key: calibration-per-specimen
+    match:
+      addr: "0x70"
+      rw: read
+      operation: Default Read
+      phase: calibration
+    mask: all-byte-values
+  - key: measurement-values
+    match:
+      addr: "0x70"
+      rw: read
+      operation: Single Measurement
+      phase: forced-minimum
+    mask: all-byte-values
+  - key: normal-measurement-values
+    match:
+      addr: "0x70"
+      rw: read
+      operation: Continuous Measurement
+      phase: normal-representative
+    mask: all-byte-values
 registers:
   - key: reset
     addr: "0xE0"

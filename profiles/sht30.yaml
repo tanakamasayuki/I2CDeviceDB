@@ -29,6 +29,21 @@ transport:
         crc_bytes: 1
       - value_bytes: 2
         crc_bytes: 1
+semantic_masks:
+  - key: single-shot-measurement-values
+    match:
+      addr: "0x44"
+      rw: read
+      operation: Single Measurement
+    mask: all-byte-values
+semantic_normalizations:
+  - key: retry-count-is-timing
+    match:
+      addr: "0x44"
+      rw: read
+      addr_ack: false
+      operation: Single Measurement
+    action: drop-record
 commands:
   - key: soft-reset
     code: "0x30A2"

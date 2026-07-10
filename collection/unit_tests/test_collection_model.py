@@ -211,6 +211,66 @@ def test_decoded_records_keep_relative_transaction_cadence():
     }
 
 
+def test_semantic_hash_masks_profile_declared_volatile_payloads():
+    from conftest import _load_decoder
+
+    decoder = _load_decoder()
+    base = {
+        "i": 0,
+        "addr": "0x44",
+        "rw": "read",
+        "addr_ack": True,
+        "bytes": [{"value": "0x01", "ack": False}],
+        "stop": True,
+        "operation": "Single Measurement",
+        "phase": "polling-high",
+    }
+    changed = base | {"bytes": [{"value": "0xFE", "ack": False}]}
+    masks = [
+        {
+            "match": {
+                "addr": "0x44",
+                "rw": "read",
+                "operation": "Single Measurement",
+            },
+            "mask": "all-byte-values",
+        }
+    ]
+    assert decoder.content_hash([base]) != decoder.content_hash([changed])
+    assert decoder.semantic_hash([base], masks) == decoder.semantic_hash([changed], masks)
+
+
+def test_semantic_hash_can_drop_timing_dependent_nack_retries():
+    from conftest import _load_decoder
+
+    decoder = _load_decoder()
+    success = {
+        "i": 0,
+        "addr": "0x44",
+        "rw": "read",
+        "addr_ack": True,
+        "bytes": [],
+        "stop": True,
+        "operation": "Single Measurement",
+        "phase": "polling-low",
+    }
+    retry = success | {"i": 1, "addr_ack": False}
+    normalization = [
+        {
+            "match": {
+                "addr": "0x44",
+                "rw": "read",
+                "addr_ack": False,
+                "operation": "Single Measurement",
+            },
+            "action": "drop-record",
+        }
+    ]
+    assert decoder.semantic_hash([success], [], normalization) == decoder.semantic_hash(
+        [retry, retry | {"i": 2}, success], [], normalization
+    )
+
+
 @pytest.mark.parametrize("target", ["sht30", "qmp6988"])
 def test_p0_scenario_points_to_available_probe(target):
     path = REPO_ROOT / "scenarios" / target / "p0.yaml"

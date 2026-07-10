@@ -1,5 +1,5 @@
 schema_version: 1
-id: qmp6988-p0-100k-nominal-0283eb57c7a7c010
+id: qmp6988-p0-100k-nominal-a6ec5b99888f5897
 kind: characterization
 target: qmp6988
 scenario: qmp6988/p0
@@ -21,61 +21,61 @@ events:
   variability: per_specimen
 - type: forced_measurement
   ctrl_meas: 37
-  elapsed_us: 4746
+  elapsed_us: 4744
   last_status: 0
   ready: true
   saw_measuring: true
   final_ctrl_meas: 37
-  raw_f7_fc: A1E5046A227C
+  raw_f7_fc: A1E1EC6A0734
   length: 6
 - type: normal_sample
   index: 0
-  raw_f7_fc: A1E3546A2624
+  raw_f7_fc: A1E0946A0C38
   length: 6
 - type: normal_sample
   index: 1
-  raw_f7_fc: A1E3706A2660
+  raw_f7_fc: A1E0E86A09F0
   length: 6
 - type: normal_sample
   index: 2
-  raw_f7_fc: A1E3086A25B0
+  raw_f7_fc: A1E1B86A0AC8
   length: 6
 - type: normal_sample
   index: 3
-  raw_f7_fc: A1E3B06A2420
+  raw_f7_fc: A1E0CC6A0930
   length: 6
 - type: normal_sample
   index: 4
-  raw_f7_fc: A1E3686A2400
+  raw_f7_fc: A1E0FC6A087C
   length: 6
 - type: normal_sample
   index: 5
-  raw_f7_fc: A1E3FC6A21BC
+  raw_f7_fc: A1E0B86A06D4
   length: 6
 - type: normal_sample
   index: 6
-  raw_f7_fc: A1E3CC6A2254
+  raw_f7_fc: A1E0886A0664
   length: 6
 - type: normal_sample
   index: 7
-  raw_f7_fc: A1E3DC6A211C
+  raw_f7_fc: A1E0D46A0650
   length: 6
 - type: normal_sample
   index: 8
-  raw_f7_fc: A1E2DC6A2134
+  raw_f7_fc: A1E1106A04E0
   length: 6
 - type: normal_sample
   index: 9
-  raw_f7_fc: A1E2EC6A1FAC
+  raw_f7_fc: A1E0686A04B0
   length: 6
 - type: probe_summary
   ok: true
 captures:
-- key: qmp6988__qmp6988__characterize__100k__nominal__0283eb57c7a7c010
-  exact_hash: 0283eb57c7a7c010
+- key: qmp6988__qmp6988__characterize__100k__nominal__a6ec5b99888f5897
+  exact_hash: a6ec5b99888f5897
   semantic_signature: a5d3507ff7b6f2c3
-  raw: captures/raw/qmp6988__qmp6988__characterize__100k__nominal__0283eb57c7a7c010.sr
-  decoded: captures/decoded/qmp6988__qmp6988__characterize__100k__nominal__0283eb57c7a7c010.jsonl
+  raw: captures/raw/qmp6988__qmp6988__characterize__100k__nominal__a6ec5b99888f5897.sr
+  decoded: captures/decoded/qmp6988__qmp6988__characterize__100k__nominal__a6ec5b99888f5897.jsonl
 provenance:
   product: m5stack-u001-c
   specimen_id: enviii-001

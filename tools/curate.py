@@ -55,15 +55,22 @@ def build_curated(candidate: dict, raw: Path, decoded: Path) -> tuple[str, dict]
     records = [json.loads(line) for line in decoded.read_text(encoding="utf-8").splitlines()]
     if not records:
         raise ValueError(f"decoded capture is empty: {decoded}")
-    content_hash = decode.content_hash(records)
+    exact_hash = decode.content_hash(records)
     provenance = candidate.get("provenance") or {}
     speed = speed_key(int(provenance["bus_speed_hz"]))
     condition = candidate.get("condition", "nominal")
     target = candidate["target"]
     probe = candidate["probe"]
-    capture_key = f"{target}__{probe}__{speed}__{condition}__{content_hash}"
+    profile_path = REPO_ROOT / "profiles" / f"{target}.yaml"
+    profile = yaml.safe_load(profile_path.read_text(encoding="utf-8")) if profile_path.exists() else {}
+    semantic_signature = decode.semantic_hash(
+        records,
+        profile.get("semantic_masks", []),
+        profile.get("semantic_normalizations", []),
+    )
+    capture_key = f"{target}__{probe}__{speed}__{condition}__{exact_hash}"
     scenario_key = str(candidate["scenario"]).replace("/", "-")
-    observation_id = f"{scenario_key}-{speed}-{condition}-{content_hash}"
+    observation_id = f"{scenario_key}-{speed}-{condition}-{exact_hash}"
 
     observation = {
         "schema_version": 1,
@@ -72,10 +79,13 @@ def build_curated(candidate: dict, raw: Path, decoded: Path) -> tuple[str, dict]
         "target": target,
         "scenario": candidate["scenario"],
         "condition": condition,
+        "semantic_signature": semantic_signature,
         "events": candidate.get("events", []),
         "captures": [
             {
                 "key": capture_key,
+                "exact_hash": exact_hash,
+                "semantic_signature": semantic_signature,
                 "raw": f"captures/raw/{capture_key}.sr",
                 "decoded": f"captures/decoded/{capture_key}.jsonl",
             }

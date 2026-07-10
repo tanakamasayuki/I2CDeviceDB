@@ -85,9 +85,9 @@ capture = target × probe × bus_speed × condition × content_hash
 operation / phase = UART マーカーで capture 内を区切る slice
 ```
 
-**capture は内容で識別する（コンテンツアドレス）。** identity = 論理キー `(target × probe × speed × condition)` ＋ **decoded 内容のハッシュ**。specimen・product は identity に使わない。内容が同じキャプチャは同じ名前に畳め、内容が違えば意味ある variant として残る。一方、匿名 `specimen_id`・product・実験環境・収集ツール世代は observation の provenance として保持し、個体差や再現条件を失わない。
+**capture はexact内容で識別する（コンテンツアドレス）。** identity = 論理キー `(target × probe × speed × condition)` ＋ **decoded exact hash**。測定値を含む一次証拠を上書きしないため、raw / decoded の名前にはexact hashを使う。別途profileの `semantic_masks` でvolatile / per-specimen byteをマスクした **semantic signature** を持ち、同じ通信挙動の比較・集約に使う。specimen・product はidentityに使わない。
 
-- ハッシュ対象は **decoded の意味内容**（addr/rw/data/ack と operation/phase）。raw はハード実機で毎回タイミングが違うのでハッシュ対象にしない → `nominal` の完全一致が畳める。
+- exact hashの対象は decodedのaddr/rw/data/ackとoperation/phase。raw はハード実機で毎回タイミングが違うのでハッシュ対象にしない。semantic signatureはprofile宣言に従い測定値・校正値をマスクし、NACK pollingのretry回数のようなtiming依存recordを正規化できる。どちらも通常のtiming値は含めない。
 - timing 系 condition（clock-stretch / overspeed / tight-timing）はタイミングが主目的なので、ハッシュ対象にタイミング特徴も含める。
 - speed / condition は論理キーに残す（内容が同じでも「400k での結果 / 100k での結果」は別の知見として保持）。
 
