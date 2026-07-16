@@ -1,6 +1,6 @@
 key: rcwl-9600
 name: RCWL-9600
-manufacturer: RCWL
+manufacturer: RCWL (Shenzhen Richen IoT Technology)
 tags: [distance, ultrasonic]
 addresses:
   - addr: "0x57"
@@ -13,5 +13,7 @@ notes: |
   range ~30-150 cm. Command-based, no register map: write a trigger byte to start a measurement,
   then read a 3-byte (24-bit) distance result. No datasheet for the RCWL-9600 ranging IC itself is
   published; the linked M5Stack-hosted datasheet is for the TC40-10T/R ceramic ultrasonic
-  transducer element (the acoustic transmitter/receiver), not the ranging chip. M5Stack Unit
-  Ultrasonic uses it at 0x57 (product now EOL, superseded by RCWL-9620).
+  transducer element (the acoustic transmitter/receiver), not the ranging chip. RCWL (Shenzhen
+  Richen IoT Technology, formerly Wuxi Richen) has no public site hosting either datasheet, so
+  the M5Stack copy is the best available source. M5Stack Unit Ultrasonic uses it at 0x57
+  (product now EOL, superseded by RCWL-9620).

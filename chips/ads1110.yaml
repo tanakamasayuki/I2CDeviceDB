@@ -8,6 +8,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.ti.com/lit/ds/symlink/ads1110.pdf
+    revision: A
+    date: "2003-11"
 notes: |
   Single-channel 16-bit ADC with on-board 2.048 V reference and oscillator. No addressable register
   map: write one configuration byte (ST/BSY, SC, DR1/DR0 data rate, PGA gain) and read 2 data bytes

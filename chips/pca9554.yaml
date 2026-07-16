@@ -8,6 +8,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.nxp.com/docs/en/data-sheet/PCA9554_9554A.pdf
+    revision: "10"
+    date: "2017-11-08"
 registers:
   - { name: input_port,         addr: "0x00", desc: "input port (read pin levels)" }
   - { name: output_port,        addr: "0x01", desc: "output port register" }

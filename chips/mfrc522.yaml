@@ -8,6 +8,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf
+    revision: "3.9"
+    date: "2016-04-27"
 registers:
   - { name: command,      addr: "0x01", desc: "command register (start/stop commands)" }
   - { name: com_irq,      addr: "0x04", desc: "interrupt request bits" }

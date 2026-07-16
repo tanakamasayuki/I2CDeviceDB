@@ -8,6 +8,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.ti.com/lit/ds/symlink/ads1100.pdf
+    revision: B
+    date: "2003-11"
 notes: |
   Single-channel 16-bit self-calibrating ADC. No addressable register map: write one configuration
   byte (ST/BSY, SC, DR1/DR0 data rate, PGA gain) and read 2 data bytes + the config byte back. The

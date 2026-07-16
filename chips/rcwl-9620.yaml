@@ -1,6 +1,6 @@
 key: rcwl-9620
 name: RCWL-9620
-manufacturer: RCWL
+manufacturer: RCWL (Shenzhen Richen IoT Technology)
 tags: [distance, ultrasonic]
 addresses:
   - addr: "0x57"

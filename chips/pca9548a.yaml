@@ -8,6 +8,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.nxp.com/docs/en/data-sheet/PCA9548A.pdf
+    revision: "5.1"
+    date: "2015-10-01"
 notes: |
   8-channel bidirectional I2C switch. No register map: a single control byte selects which of the
   8 downstream channels are connected (one bit per channel; multiple may be enabled). Address set

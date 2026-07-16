@@ -8,6 +8,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.st.com/resource/en/datasheet/vl53l1x.pdf
+    revision: "8"
+    date: "2024-08-09"
 registers:
   - { name: soft_reset,            addr: "0x0000",         desc: "software reset" }
   - { name: i2c_slave_address,     addr: "0x0001",         desc: "7-bit I2C address (default 0x29)" }

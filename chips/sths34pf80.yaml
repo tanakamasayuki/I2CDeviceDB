@@ -7,6 +7,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.st.com/resource/en/datasheet/sths34pf80.pdf
+    revision: "2"
+    date: "2023-07-05"
 registers:
   - { name: who_am_i,    addr: "0x0F",         desc: "device id (reads 0xD3)" }
   - { name: avg_trim,    addr: "0x10",         desc: "averaging config" }

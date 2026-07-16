@@ -11,6 +11,7 @@ datasheets:
   - source: reseller
     url: https://files.seeedstudio.com/wiki/Grove_Gesture_V_1.0/res/PAJ7620U2_DS_v1.5_05012022_Confidential.pdf
     revision: "1.5"
+    date: "2022-05-01"
 registers:
   - { name: bank_select,   addr: "0xEF", desc: "register bank select (0x00=Bank0, 0x01=Bank1)" }
   - { name: part_id_low,   addr: "0x00", desc: "Bank0: part id low byte, reads 0x20" }

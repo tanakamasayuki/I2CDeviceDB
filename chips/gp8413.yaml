@@ -6,6 +6,11 @@ addresses:
   - addr: "0x59"
     note: default; hardware-selectable via A0-A2 pins
 datasheets:
+  - source: vendor
+    vendor: m5stack
+    url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-DAC2/GP8413.pdf
+    revision: FN1601-79.2a
+    date: "2022-06-06"
   - source: reseller
     url: https://wiki.dfrobot.com/dfr1073/docs/18826
 registers:
@@ -15,5 +20,5 @@ registers:
 notes: |
   2-channel 15-bit I2C DAC (0-5 V / 0-10 V output). Default address 0x59, hardware-selectable.
   Register layout above follows the DFRobot/Guestgood driver (output-range register plus two DAC
-  data registers). No manufacturer-hosted public datasheet URL confirmed; the DFRobot wiki is the
-  best documented reference. M5Stack Unit DAC2 uses it at 0x59.
+  data registers). Guestgood does not host the datasheet on its own site; the M5Stack-hosted copy
+  above (doc FN1601-79.2a) is Guestgood's own PDF mirrored by M5Stack. M5Stack Unit DAC2 uses it at 0x59.

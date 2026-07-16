@@ -8,6 +8,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.ti.com/lit/ds/symlink/tca9548a.pdf
+    revision: H
+    date: "2024-09"
 notes: |
   8-channel bidirectional I2C switch with reset. No register map: a single control byte selects
   which downstream channels are connected (one bit per channel). Address set by A0/A1/A2 across

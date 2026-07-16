@@ -8,6 +8,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmm150-ds001.pdf
+    revision: "1.4"
+    date: "2020-04"
 registers:
   - { name: chip_id,       addr: "0x40",         desc: "chip id (reads 0x32)" }
   - { name: data,          addr: "0x42", len: 8, desc: "magnetometer X/Y/Z + hall (RHALL)" }

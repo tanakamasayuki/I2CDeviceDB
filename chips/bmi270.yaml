@@ -10,6 +10,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi270-ds000.pdf
+    revision: "1.6"
+    date: "2026-03"
 registers:
   - { name: chip_id,         addr: "0x00",         desc: "chip id (reads 0x24)" }
   - { name: status,          addr: "0x03",         desc: "data-ready / status flags" }

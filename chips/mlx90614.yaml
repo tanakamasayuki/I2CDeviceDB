@@ -8,6 +8,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.melexis.com/-/media/files/documents/datasheets/mlx90614-datasheet-melexis.pdf
+    revision: "021"
+    date: "2026-06-02"
 registers:
   - { name: ram_ta,        addr: "0x06", desc: "RAM: ambient temperature Ta" }
   - { name: ram_tobj1,     addr: "0x07", desc: "RAM: object temperature Tobj1" }

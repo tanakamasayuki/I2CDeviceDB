@@ -7,6 +7,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.analog.com/media/en/technical-documentation/data-sheets/MAX30100.pdf
+    revision: "0"
+    date: "2014-09"
 registers:
   - { name: int_status,  addr: "0x00", desc: "interrupt status" }
   - { name: int_enable,  addr: "0x01", desc: "interrupt enable" }

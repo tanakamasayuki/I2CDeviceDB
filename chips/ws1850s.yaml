@@ -1,6 +1,6 @@
 key: ws1850s
 name: WS1850S
-manufacturer: Wisesun
+manufacturer: WiseSun (Shenzhen Qianhai WiseSun Intelligence Technology)
 tags: [rfid, nfc]
 addresses:
   - addr: "0x28"
@@ -17,5 +17,6 @@ registers:
 notes: |
   13.56 MHz RFID/NFC reader (ISO/IEC 14443A, MIFARE/NTAG), used at I2C address 0x28. Functionally
   and software-compatible with the NXP MFRC522 register set (the [[mfrc522]] driver works over I2C).
-  The datasheet is a M5Stack-hosted copy (no manufacturer-hosted URL). M5Stack Unit RFID2 uses it at
-  0x28, succeeding the MFRC522-based Unit RFID.
+  The datasheet is a M5Stack-hosted copy; WiseSun has no public corporate site hosting it, and the
+  same document only otherwise circulates via distributor mirrors (LCSC, JLCPCB). M5Stack Unit RFID2
+  uses it at 0x28, succeeding the MFRC522-based Unit RFID.

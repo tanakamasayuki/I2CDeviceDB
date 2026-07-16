@@ -10,7 +10,11 @@ addresses:
 datasheets:
   - source: reseller
     url: https://www.hpinfotech.ro/SSD1309.pdf
+    revision: "1.1"
+    date: "2011-07"
 notes: |
   128x64 OLED/PLED dot-matrix driver+controller. No addressable register map: after the slave
   address, a control byte selects the stream - 0x00 = command stream, 0x40 = data (GDDRAM) stream.
-  The D/C# pin acts as SA0 to select 0x3c/0x3d. M5Stack Unit Glass2 uses it at 0x3c.
+  The D/C# pin acts as SA0 to select 0x3c/0x3d. Solomon Systech gates its own datasheet downloads
+  behind a sales request (no public solomon-systech.com PDF); the mirror above is the commonly
+  circulated Rev 1.1 copy. M5Stack Unit Glass2 uses it at 0x3c.

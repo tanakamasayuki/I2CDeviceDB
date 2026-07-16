@@ -10,6 +10,8 @@ addresses:
 datasheets:
   - source: manufacturer
     url: https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf
+    revision: G
+    date: "2022-05"
 registers:
   - { name: devid,       addr: "0x00",           desc: "device id (reads 0xE5)" }
   - { name: bw_rate,     addr: "0x2C",           desc: "data rate and power mode" }
