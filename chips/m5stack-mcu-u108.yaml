@@ -7,7 +7,7 @@ addresses:
 datasheets:
   - source: vendor
     vendor: m5stack
-    url: https://docs.m5stack.com/en/unit/UNIT%20Scales
+    url: https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/705/Unit-Scales_Protocol.pdf
 notes: |
   Firmware-defined I2C slave: the I2C endpoint is an on-board STM32F030 running M5Stack
   firmware (not a fixed-function IC), so the register map is product-specific and is grown

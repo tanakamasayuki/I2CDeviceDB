@@ -11,4 +11,8 @@ datasheets:
 notes: |
   Firmware-defined I2C slave: the I2C endpoint is an on-board STM32F030 running M5Stack
   firmware (not a fixed-function IC), so the register map is product-specific and is grown
-  from captures rather than a datasheet. Modeled per-unit. Silicon: STM32F030. Used in M5Stack Unit HBridge v1.1 (U160-V11) at 0x20.
+  from captures rather than a datasheet. Modeled per-unit. Silicon: STM32F030. The I2C protocol on
+  the docs page is only an inline image, not a PDF (no docs/ folder in the M5Unit-Hbridge repo
+  either):
+  https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/HBridge%20v1.1%20Unit/1c0f2f06b03b7b55265dfb4d4902827.png
+  Used in M5Stack Unit HBridge v1.1 (U160-V11) at 0x20.

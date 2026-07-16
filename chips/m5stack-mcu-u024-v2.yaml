@@ -11,4 +11,7 @@ datasheets:
 notes: |
   Firmware-defined I2C slave: the I2C endpoint is an on-board STM32G030 running M5Stack
   firmware (not a fixed-function IC), so the register map is product-specific and is grown
-  from captures rather than a datasheet. Modeled per-unit. Silicon: STM32G030. Used in M5Stack Unit Joystick2 (U024-V2) at 0x63.
+  from captures rather than a datasheet. Modeled per-unit. Silicon: STM32G030. The I2C protocol on
+  the docs page is only an inline image, not a PDF:
+  https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-JoyStick2/5c89a128c77c6e9b7b13f85a8abdb91.png
+  Used in M5Stack Unit Joystick2 (U024-V2) at 0x63.

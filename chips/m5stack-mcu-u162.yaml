@@ -7,7 +7,7 @@ addresses:
 datasheets:
   - source: vendor
     vendor: m5stack
-    url: https://docs.m5stack.com/en/unit/AIN4-20mA%20Unit
+    url: https://raw.githubusercontent.com/m5stack/M5Module-4-20mA/main/docs/Unit_AIN4-20mA_I2C_Protocol.pdf
 notes: |
   Firmware-defined I2C slave: the I2C endpoint is an on-board STM32G030 running M5Stack
   firmware (not a fixed-function IC), so the register map is product-specific and is grown

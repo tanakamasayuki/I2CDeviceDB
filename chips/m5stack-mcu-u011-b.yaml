@@ -11,4 +11,7 @@ datasheets:
 notes: |
   Firmware-defined I2C slave: the I2C endpoint is an on-board STM32F030 running M5Stack
   firmware (not a fixed-function IC), so the register map is product-specific and is grown
-  from captures rather than a datasheet. Modeled per-unit. Silicon: STM32F030. Used in M5Stack Unit EXT.IO2 (U011-B) at 0x45.
+  from captures rather than a datasheet. Modeled per-unit. Silicon: STM32F030. The M5Unit-EXTIO2
+  library repo hosts versioned protocol PDFs (V1 and V3); which version matches this STM32F030
+  hardware revision is unconfirmed, so the docs page above is kept as the primary reference. Used in
+  M5Stack Unit EXT.IO2 (U011-B) at 0x45.
