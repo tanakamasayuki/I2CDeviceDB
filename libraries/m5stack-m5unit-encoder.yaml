@@ -1,0 +1,5 @@
+key: m5stack-m5unit-encoder
+name: M5Unit-Encoder
+repo: https://github.com/m5stack/M5Unit-Encoder
+supports:
+  chips: [m5stack-mcu-u135]

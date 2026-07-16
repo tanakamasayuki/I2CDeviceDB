@@ -1,0 +1,5 @@
+key: m5stack-m5unit-8encoder
+name: M5Unit-8Encoder
+repo: https://github.com/m5stack/M5Unit-8Encoder
+supports:
+  chips: [m5stack-mcu-u153]

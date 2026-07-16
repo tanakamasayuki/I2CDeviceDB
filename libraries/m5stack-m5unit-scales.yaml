@@ -1,0 +1,5 @@
+key: m5stack-m5unit-scales
+name: M5Unit-Scales
+repo: https://github.com/m5stack/M5Unit-Scales
+supports:
+  chips: [m5stack-mcu-u108]

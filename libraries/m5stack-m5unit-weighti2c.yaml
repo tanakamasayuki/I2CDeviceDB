@@ -1,0 +1,5 @@
+key: m5stack-m5unit-weighti2c
+name: M5Unit-WeightI2C
+repo: https://github.com/m5stack/M5Unit-WeightI2C
+supports:
+  chips: [m5stack-mcu-u180]

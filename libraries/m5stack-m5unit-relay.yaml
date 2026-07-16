@@ -1,0 +1,5 @@
+key: m5stack-m5unit-relay
+name: M5Unit-RELAY
+repo: https://github.com/m5stack/M5Unit-RELAY
+supports:
+  chips: [m5stack-mcu-u097]

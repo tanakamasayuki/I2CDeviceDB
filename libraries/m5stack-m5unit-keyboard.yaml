@@ -1,0 +1,5 @@
+key: m5stack-m5unit-keyboard
+name: M5Unit-KEYBOARD
+repo: https://github.com/m5stack/M5Unit-KEYBOARD
+supports:
+  chips: [m5stack-mcu-u035-b]

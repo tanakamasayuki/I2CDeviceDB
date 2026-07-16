@@ -1,0 +1,5 @@
+key: m5stack-m5unit-glass
+name: M5Unit-GLASS
+repo: https://github.com/m5stack/M5Unit-GLASS
+supports:
+  chips: [m5stack-mcu-u158]

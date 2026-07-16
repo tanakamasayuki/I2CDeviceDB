@@ -1,0 +1,5 @@
+key: m5stack-m5unit-miniscale
+name: M5Unit-Miniscale
+repo: https://github.com/m5stack/M5Unit-Miniscale
+supports:
+  chips: [m5stack-mcu-u177]

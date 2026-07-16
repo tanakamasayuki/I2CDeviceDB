@@ -1,0 +1,5 @@
+key: m5stack-m5unit-8servo
+name: M5Unit-8Servo
+repo: https://github.com/m5stack/M5Unit-8Servo
+supports:
+  chips: [m5stack-mcu-u165]

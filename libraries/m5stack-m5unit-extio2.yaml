@@ -1,0 +1,5 @@
+key: m5stack-m5unit-extio2
+name: M5Unit-EXTIO2
+repo: https://github.com/m5stack/M5Unit-EXTIO2
+supports:
+  chips: [m5stack-mcu-u011-b]

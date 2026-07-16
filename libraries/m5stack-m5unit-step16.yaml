@@ -1,0 +1,5 @@
+key: m5stack-m5unit-step16
+name: M5Unit-Step16
+repo: https://github.com/m5stack/M5Unit-Step16
+supports:
+  chips: [m5stack-mcu-u198]

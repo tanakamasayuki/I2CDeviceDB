@@ -1,0 +1,5 @@
+key: m5stack-m5unit-dds
+name: M5Unit-DDS
+repo: https://github.com/m5stack/M5Unit-DDS
+supports:
+  chips: [m5stack-mcu-u105]
